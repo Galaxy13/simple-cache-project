@@ -1,7 +1,9 @@
 package com.galaxy13.storage;
 
+import java.util.Optional;
+
 public interface Storage<K> {
-    Value get(K key);
+    Optional<Value> get(K key);
 
     Value putIfAbsent(K key, Value value);
 
