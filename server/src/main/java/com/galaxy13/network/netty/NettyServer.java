@@ -1,6 +1,10 @@
 package com.galaxy13.network.netty;
 
 import com.galaxy13.network.StorageServer;
+import com.galaxy13.network.message.MessageHandler;
+import com.galaxy13.network.message.MessageHandlerImpl;
+import com.galaxy13.storage.Storage;
+import com.galaxy13.storage.StorageImpl;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelOption;
@@ -19,8 +23,13 @@ public class NettyServer implements StorageServer {
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
+    private final Storage<String, String> storage;
+    private final MessageHandler handler;
+
     public NettyServer(int port) {
         this.port = port;
+        this.storage = new StorageImpl<>(100);
+        this.handler = new MessageHandlerImpl(storage);
     }
 
     @Override
@@ -33,7 +42,7 @@ public class NettyServer implements StorageServer {
             bootstrap.group(bossGroup, workerGroup)
                     .channel(NioServerSocketChannel.class)
                     .localAddress(new InetSocketAddress(port))
-                    .childHandler(new SimpleTCPChanelInitializer())
+                    .childHandler(new SimpleTCPChanelInitializer(handler))
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture future = bootstrap.bind(port).sync();
             if (future.isSuccess()) {

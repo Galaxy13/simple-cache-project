@@ -1,5 +1,4 @@
 package com.galaxy13.storage;
 
-public abstract class Value {
-
+public record Value<T>(String type, T value) {
 }
