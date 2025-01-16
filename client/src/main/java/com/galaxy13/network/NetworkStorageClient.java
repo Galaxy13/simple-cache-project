@@ -1,7 +1,8 @@
 package com.galaxy13.network;
 
-import io.netty.channel.ChannelFuture;
+
+import com.galaxy13.storage.ResponseAction;
 
 public interface NetworkStorageClient {
-    ChannelFuture sendMessage(String message) throws InterruptedException;
+    void sendMessage(String message, ResponseAction action) throws InterruptedException;
 }
