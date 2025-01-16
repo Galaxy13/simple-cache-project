@@ -18,18 +18,16 @@ import java.net.InetSocketAddress;
 
 public class NettyServer implements StorageServer {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
-    private int port;
+    private final int port;
 
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
-    private final Storage<String, String> storage;
     private final MessageHandler handler;
 
-    public NettyServer(int port) {
+    public NettyServer(int port, MessageHandler handler) {
         this.port = port;
-        this.storage = new StorageImpl<>(100);
-        this.handler = new MessageHandlerImpl(storage);
+        this.handler = handler;
     }
 
     @Override

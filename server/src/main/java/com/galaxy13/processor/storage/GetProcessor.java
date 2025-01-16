@@ -6,15 +6,15 @@ import com.galaxy13.storage.Value;
 import java.util.Map;
 import java.util.Optional;
 
-public class GetProcessor<V> implements MessageProcessor<V> {
+public class GetProcessor implements MessageProcessor {
     @Override
-    public Optional<Value<V>> process(Storage<String, V> storage, Map<String, String> fields) {
+    public Optional<Value> process(Storage storage, Map<String, String> fields) {
         String key = fields.get("key");
-        String valueType = fields.get("valueType");
+        String valueType = fields.get("value_type");
         if (key != null && valueType != null) {
-            Optional<Value<V>> value = storage.get(key);
+            Optional<Value> value = storage.get(key);
             if (value.isPresent()) {
-                Value<V> v = value.get();
+                Value v = value.get();
                 if (v.type().equals(valueType)){
                     return Optional.of(v);
                 } else {

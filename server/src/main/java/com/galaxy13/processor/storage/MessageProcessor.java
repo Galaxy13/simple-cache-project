@@ -6,8 +6,8 @@ import com.galaxy13.storage.Value;
 import java.util.Map;
 import java.util.Optional;
 
-public interface MessageProcessor<V> {
-    Optional<Value<V>> process(
-                            Storage<String, V> storage,
+public interface MessageProcessor {
+    Optional<Value> process(
+                            Storage storage,
                             Map<String, String> fields);
 }

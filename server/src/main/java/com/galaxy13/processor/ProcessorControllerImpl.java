@@ -8,20 +8,20 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-public class ProcessorControllerImpl<V> implements ProcessorController<V> {
+public class ProcessorControllerImpl implements ProcessorController {
 
-    private final Map<String, MessageProcessor<V>> processors = new HashMap<>(){{
-        put("GET", new GetProcessor<>());
-        put("PUT", new PutProcessor<>());
+    private final Map<String, MessageProcessor> processors = new HashMap<>(){{
+        put("GET", new GetProcessor());
+        put("PUT", new PutProcessor());
     }};
 
     @Override
-    public Optional<MessageProcessor<V>> getMessageProcessor(Map<String, String> messageFields) {
-        String operation = messageFields.get("operation");
+    public Optional<MessageProcessor> getMessageProcessor(Map<String, String> messageFields) {
+        String operation = messageFields.get("op");
         if (operation == null) {
             return Optional.empty();
         }
-       MessageProcessor<V> processor = processors.get(operation);
+       MessageProcessor processor = processors.get(operation);
        if (processor == null) {
            return Optional.empty();
        }

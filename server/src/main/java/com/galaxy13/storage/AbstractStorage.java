@@ -3,21 +3,22 @@ package com.galaxy13.storage;
 import java.util.Map;
 import java.util.Optional;
 
-public abstract class AbstractStorage<K, V> implements Storage<K, V> {
-    protected Map<K, Value<V>> storage;
+public abstract class AbstractStorage implements Storage {
+    protected Map<String, Value> storage;
 
     @Override
-    public Optional<Value<V>> get(K key) {
+    public Optional<Value> get(String key) {
         return Optional.ofNullable(storage.get(key));
     }
 
     @Override
-    public Value<V> put(K key, Value<V> value) {
-        return storage.put(key, value);
+    public Value put(String key, Value value) {
+        storage.put(key, value);
+        return value;
     }
 
     @Override
-    public Optional<Value<V>> remove(K key) {
+    public Optional<Value> remove(String key) {
         return Optional.ofNullable(storage.remove(key));
     }
 }

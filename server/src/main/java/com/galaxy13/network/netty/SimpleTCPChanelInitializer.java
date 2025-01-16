@@ -1,6 +1,7 @@
 package com.galaxy13.network.netty;
 
 import com.galaxy13.network.message.MessageHandler;
+import com.galaxy13.network.message.MessageHandlerImpl;
 import com.galaxy13.storage.Storage;
 import io.netty.channel.ChannelInitializer;
 import io.netty.channel.socket.SocketChannel;

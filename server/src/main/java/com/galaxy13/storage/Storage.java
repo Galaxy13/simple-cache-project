@@ -2,10 +2,10 @@ package com.galaxy13.storage;
 
 import java.util.Optional;
 
-public interface Storage<K, V> {
-    Optional<Value<V>> get(K key);
+public interface Storage {
+    Optional<Value> get(String key);
 
-    Optional<Value<V>> remove(K key);
+    Optional<Value> remove(String key);
 
-    Value<V> put(K key, Value<V> value);
+    Value put(String key, Value value);
 }

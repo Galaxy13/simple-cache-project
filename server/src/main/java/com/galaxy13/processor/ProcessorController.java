@@ -5,6 +5,6 @@ import com.galaxy13.processor.storage.MessageProcessor;
 import java.util.Map;
 import java.util.Optional;
 
-public interface ProcessorController<V> {
-    Optional<MessageProcessor<V>> getMessageProcessor(Map<String, String> fields);
+public interface ProcessorController {
+    Optional<MessageProcessor> getMessageProcessor(Map<String, String> fields);
 }

@@ -1,4 +1,4 @@
 package com.galaxy13.storage;
 
-public record Value<T>(String type, T value) {
+public record Value(String type, String value) {
 }

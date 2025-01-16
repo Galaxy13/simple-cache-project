@@ -1,7 +1,6 @@
 package com.galaxy13.network.message;
 
 import com.galaxy13.network.MessageCode;
-import com.galaxy13.processor.ProcessorControllerImpl;
 import com.galaxy13.processor.storage.MessageProcessor;
 import com.galaxy13.processor.ProcessorController;
 import com.galaxy13.storage.Storage;
@@ -17,18 +16,18 @@ import java.util.stream.Collectors;
 public class MessageHandlerImpl implements MessageHandler{
     private final Logger logger = LoggerFactory.getLogger(MessageHandlerImpl.class);
 
-    private final Storage<String, String> storage;
-    private final ProcessorController<String> controller;
+    private final Storage storage;
+    private final ProcessorController controller;
 
-    public MessageHandlerImpl(Storage<String, String> storage) {
+    public MessageHandlerImpl(Storage storage, ProcessorController controller) {
         this.storage = storage;
-        this.controller = new ProcessorControllerImpl<>();
+        this.controller = controller;
     }
 
     @Override
     public String handleMessage(String message) {
         Map<String, String> fields = getFields(message);
-        Optional<MessageProcessor<String>> messageProcessor = controller.getMessageProcessor(fields);
+        Optional<MessageProcessor> messageProcessor = controller.getMessageProcessor(fields);
         if (messageProcessor.isPresent()) {
             var processor = messageProcessor.get();
             var result = processor.process(storage, fields);
@@ -52,10 +51,10 @@ public class MessageHandlerImpl implements MessageHandler{
         return Arrays.stream(message.split(";"))
                 .map(s -> s.split(":"))
                 .filter(parts -> parts.length == 2)
-                .collect(Collectors.toMap(parts -> parts[0], parts -> parts[1]));
+                .collect(Collectors.toMap(parts -> parts[0], parts -> parts[1].strip()));
     }
 
-    private String createMessage(Value<String> value){
+    private String createMessage(Value value){
         StringJoiner joiner = new StringJoiner(";");
         joiner.add("code:" + MessageCode.OK);
         joiner.add("value_type:" + value.type());
@@ -64,6 +63,6 @@ public class MessageHandlerImpl implements MessageHandler{
     }
 
     private String faultCode(MessageCode messageCode) {
-        return "code:" + messageCode.toString();
+        return "code:" + messageCode;
     }
 }
