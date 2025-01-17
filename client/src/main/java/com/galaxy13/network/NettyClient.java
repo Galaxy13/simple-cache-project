@@ -1,6 +1,8 @@
 package com.galaxy13.network;
 
-import com.galaxy13.storage.ResponseAction;
+import com.galaxy13.network.message.ClientMessageHandler;
+import com.galaxy13.storage.action.ErrorAction;
+import com.galaxy13.storage.action.ResponseAction;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
@@ -25,7 +27,7 @@ public class NettyClient implements NetworkStorageClient{
     }
 
     @Override
-    public void sendMessage(String message, ResponseAction action) throws InterruptedException {
+    public void sendMessage(String message, ResponseAction respAction, ErrorAction errorAction) throws InterruptedException {
         var bootstrap = new Bootstrap();
         bootstrap.group(group)
                 .channel(NioSocketChannel.class)
@@ -35,7 +37,7 @@ public class NettyClient implements NetworkStorageClient{
                     public void initChannel(SocketChannel ch) {
                         ch.pipeline().addLast(new StringDecoder());
                         ch.pipeline().addLast(new StringEncoder());
-                        ch.pipeline().addLast(new StorageClientHandler(action));
+                        ch.pipeline().addLast(new ClientMessageHandler(respAction, errorAction));
                     }
                 });
         ChannelFuture future = bootstrap.connect().sync();

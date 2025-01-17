@@ -9,7 +9,7 @@ import com.galaxy13.processor.ProcessorControllerImpl;
 import com.galaxy13.storage.Storage;
 import com.galaxy13.storage.StorageImpl;
 
-public class Main {
+public class Server {
     public static void main(String[] args) throws InterruptedException {
         Storage storage = new StorageImpl(100);
         ProcessorController processorController = new ProcessorControllerImpl();

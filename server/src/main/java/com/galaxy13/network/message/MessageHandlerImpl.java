@@ -34,9 +34,9 @@ public class MessageHandlerImpl implements MessageHandler{
             if (result.isPresent()){
                 return createMessage(result.get());
             }
-            return faultCode(MessageCode.NOT_PRESENT);
+            return msgCode(MessageCode.NOT_PRESENT);
         }
-        return faultCode(MessageCode.UNSUPPORTED_OPERATION);
+        return msgCode(MessageCode.UNSUPPORTED_OPERATION);
     }
 
     private Optional<String> findField(String message, String fieldName) {
@@ -56,13 +56,13 @@ public class MessageHandlerImpl implements MessageHandler{
 
     private String createMessage(Value value){
         StringJoiner joiner = new StringJoiner(";");
-        joiner.add("code:" + MessageCode.OK);
+        joiner.add(msgCode(MessageCode.OK));
         joiner.add("value_type:" + value.type());
         joiner.add("value:" + value.value());
         return joiner.toString();
     }
 
-    private String faultCode(MessageCode messageCode) {
-        return "code:" + messageCode;
+    private String msgCode(MessageCode messageCode) {
+        return "code:" + messageCode.code();
     }
 }
