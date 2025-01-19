@@ -19,4 +19,9 @@ public class PutProcessor implements MessageProcessor {
             return Optional.empty();
         }
     }
+
+    @Override
+    public boolean isModifying() {
+        return true;
+    }
 }

@@ -21,4 +21,9 @@ public class GetProcessor implements MessageProcessor {
         }
         return Optional.empty();
     }
+
+    @Override
+    public boolean isModifying() {
+        return true;
+    }
 }

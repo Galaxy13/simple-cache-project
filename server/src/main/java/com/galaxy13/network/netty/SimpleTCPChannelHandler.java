@@ -18,8 +18,7 @@ public class SimpleTCPChannelHandler extends SimpleChannelInboundHandler<String>
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg){
         logger.info("{}: {}", ctx.channel().remoteAddress(), msg);
-        String responseMsg = messageHandler.handleMessage(msg);
-        ctx.writeAndFlush(responseMsg);
+        messageHandler.handleMessage(msg, ctx.channel());
     }
 
     @Override

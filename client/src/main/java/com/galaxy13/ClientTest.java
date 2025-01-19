@@ -11,23 +11,18 @@ public class ClientTest {
 
     public static void main(String[] args) throws InterruptedException {
         var storage = new Storage(8081, "localhost");
-        storage.putIfAbsent("test", 1234)
-                .then(response -> logger.info(response.toString()))
+        storage.subscribeOn("test")
+                .onResponse(response -> logger.info(response.toString()))
                 .execute();
 
         sleep(1000);
 
-        storage.putIfAbsent("test", 12345)
-                .then(response -> logger.info(response.toString()))
-                .execute();
+        storage.computeIfAbsent("test", 5).execute();
 
         sleep(1000);
-        storage.get("test")
-                .then(response -> {
-                    if (response.getValue().isPresent()){
-                        logger.info(response.getValue().get());
-                    }
-                })
+
+        storage.put("test", 12345)
+                .onResponse(response -> {})
                 .execute();
     }
 }

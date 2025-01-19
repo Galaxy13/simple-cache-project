@@ -10,4 +10,6 @@ public interface MessageProcessor {
     Optional<Value> process(
                             Storage storage,
                             Map<String, String> fields);
+
+    boolean isModifying();
 }

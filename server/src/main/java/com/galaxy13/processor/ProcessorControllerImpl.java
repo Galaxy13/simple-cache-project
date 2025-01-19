@@ -3,6 +3,7 @@ package com.galaxy13.processor;
 import com.galaxy13.processor.storage.GetProcessor;
 import com.galaxy13.processor.storage.MessageProcessor;
 import com.galaxy13.processor.storage.PutProcessor;
+import com.galaxy13.processor.storage.SubscriptionProcessor;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,6 +14,7 @@ public class ProcessorControllerImpl implements ProcessorController {
     private final Map<String, MessageProcessor> processors = new HashMap<>(){{
         put("GET", new GetProcessor());
         put("PUT", new PutProcessor());
+        put("SUBSCRIBE", new SubscriptionProcessor());
     }};
 
     @Override

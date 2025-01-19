@@ -7,7 +7,11 @@ public interface StorageClient {
 
     Storage.ClientFuture get(String key);
 
-    <T> Storage.ClientFuture putIfAbsent(String key, T value);
+    <T> Storage.ClientFuture computeIfAbsent(String key, T value);
 
-    <T> Storage.ClientFuture putIfAbsent(String key, ResourceSupplier<T> supplier);
+    <T> Storage.ClientFuture computeIfAbsent(String key, ResourceSupplier<T> supplier);
+
+    Storage.ClientFuture subscribeOn(String key);
+
+    <T> Storage.ClientFuture putAndSubscribe(String key, T value);
 }

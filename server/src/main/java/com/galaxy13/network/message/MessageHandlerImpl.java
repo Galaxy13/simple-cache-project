@@ -1,16 +1,17 @@
 package com.galaxy13.network.message;
 
 import com.galaxy13.network.MessageCode;
+import com.galaxy13.network.subscription.SubscriptionHandler;
+import com.galaxy13.network.subscription.SubscriptionHandlerImpl;
 import com.galaxy13.processor.storage.MessageProcessor;
 import com.galaxy13.processor.ProcessorController;
+import com.galaxy13.processor.storage.SubscriptionProcessor;
 import com.galaxy13.storage.Storage;
-import com.galaxy13.storage.Value;
+import io.netty.channel.Channel;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.*;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 public class MessageHandlerImpl implements MessageHandler{
@@ -18,33 +19,41 @@ public class MessageHandlerImpl implements MessageHandler{
 
     private final Storage storage;
     private final ProcessorController controller;
+    private final MessageCreator messageCreator;
+    private final SubscriptionHandler subscriptionHandler;
 
-    public MessageHandlerImpl(Storage storage, ProcessorController controller) {
+    public MessageHandlerImpl(Storage storage, ProcessorController controller, MessageCreator messageCreator) {
         this.storage = storage;
         this.controller = controller;
+        this.messageCreator = messageCreator;
+        this.subscriptionHandler = new SubscriptionHandlerImpl(messageCreator);
     }
 
     @Override
-    public String handleMessage(String message) {
+    public void handleMessage(String message, Channel channel) {
         Map<String, String> fields = getFields(message);
+        String msg;
         Optional<MessageProcessor> messageProcessor = controller.getMessageProcessor(fields);
         if (messageProcessor.isPresent()) {
             var processor = messageProcessor.get();
+            if (processor instanceof SubscriptionProcessor) {
+                subscriptionHandler.subscribe(fields.get("key"), channel);
+                return;
+            }
             var result = processor.process(storage, fields);
             if (result.isPresent()){
-                return createMessage(result.get());
+                msg = messageCreator.createResponse(result.get());
+                if(processor.isModifying()){
+                    subscriptionHandler.handleModification(result.get(), fields.get("key"));
+                    return;
+                }
+            } else {
+                msg = messageCreator.createCodeMessage(MessageCode.NOT_PRESENT);
             }
-            return msgCode(MessageCode.NOT_PRESENT);
+        } else {
+            msg = messageCreator.createCodeMessage(MessageCode.UNSUPPORTED_OPERATION);
         }
-        return msgCode(MessageCode.UNSUPPORTED_OPERATION);
-    }
-
-    private Optional<String> findField(String message, String fieldName) {
-        Matcher matcher = Pattern.compile(String.format("(?<=%s:)[^;]+", fieldName)).matcher(message);
-        if (matcher.find()) {
-            return Optional.of(matcher.group());
-        }
-        return Optional.empty();
+        channel.writeAndFlush(msg);
     }
 
     private Map<String, String> getFields(String message) {
@@ -52,17 +61,5 @@ public class MessageHandlerImpl implements MessageHandler{
                 .map(s -> s.split(":"))
                 .filter(parts -> parts.length == 2)
                 .collect(Collectors.toMap(parts -> parts[0], parts -> parts[1].strip()));
-    }
-
-    private String createMessage(Value value){
-        StringJoiner joiner = new StringJoiner(";");
-        joiner.add(msgCode(MessageCode.OK));
-        joiner.add("value_type:" + value.type());
-        joiner.add("value:" + value.value());
-        return joiner.toString();
-    }
-
-    private String msgCode(MessageCode messageCode) {
-        return "code:" + messageCode.code();
     }
 }

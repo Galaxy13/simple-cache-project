@@ -1,5 +1,7 @@
 package com.galaxy13.network.message;
 
+import io.netty.channel.Channel;
+
 public interface MessageHandler {
-    String handleMessage(String message);
+    void handleMessage(String message, Channel channel);
 }

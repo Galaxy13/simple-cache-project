@@ -10,7 +10,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.StringJoiner;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class Storage implements StorageClient {
     private static final Logger logger = LoggerFactory.getLogger(Storage.class);
@@ -33,9 +32,9 @@ public class Storage implements StorageClient {
             this.message = message;
         }
 
-        public ClientFuture then(ResponseAction responseAction) {
+        public ClientFuture onResponse(ResponseAction responseAction) {
             if (childFuture != null) {
-                childFuture.then(responseAction);
+                childFuture.onResponse(responseAction);
                 return this;
             }
             this.responseAction = responseAction;
@@ -87,15 +86,15 @@ public class Storage implements StorageClient {
     }
 
     @Override
-    public <T> ClientFuture putIfAbsent(String key, T value) {
-        return putIfAbsent(key, () -> value);
+    public <T> ClientFuture computeIfAbsent(String key, T value) {
+        return computeIfAbsent(key, () -> value);
     }
 
     @Override
-    public <T> ClientFuture putIfAbsent(String key, ResourceSupplier<T> supplier) {
+    public <T> ClientFuture computeIfAbsent(String key, ResourceSupplier<T> supplier) {
         ClientFuture getFuture = this.get(key);
         ClientFuture putFuture = this.put(key, supplier.get());
-        getFuture.then(
+        getFuture.onResponse(
                 response -> {
                     if (response.getCode().equals(MessageCode.NOT_PRESENTED)) {
                         putFuture.execute();
@@ -106,6 +105,18 @@ public class Storage implements StorageClient {
         getFuture.setChildFuture(putFuture);
         return getFuture;
     }
+
+    @Override
+    public ClientFuture subscribeOn(String key) {
+        StringJoiner basicMessage = createBasicMessage(Operation.SUBSCRIBE, key);
+        return new ClientFuture(basicMessage + ";");
+    }
+
+    @Override
+    public <T> ClientFuture putAndSubscribe(String key, T value) {
+        return null;
+    }
+
 
     private StringJoiner createBasicMessage(Operation operation, String key) {
         StringJoiner sj = new StringJoiner(";");
