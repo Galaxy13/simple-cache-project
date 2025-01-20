@@ -1,6 +1,6 @@
 package com.galaxy13.storage;
 
-import com.galaxy13.network.NettyClient;
+import com.galaxy13.network.netty.NettyClient;
 import com.galaxy13.network.NetworkStorageClient;
 import com.galaxy13.network.message.MessageCode;
 import com.galaxy13.storage.action.ErrorAction;
@@ -11,12 +11,12 @@ import org.slf4j.LoggerFactory;
 
 import java.util.StringJoiner;
 
-public class Storage implements StorageClient {
-    private static final Logger logger = LoggerFactory.getLogger(Storage.class);
+public class AsyncStorageClient{
+    private static final Logger logger = LoggerFactory.getLogger(AsyncStorageClient.class);
 
     private final NetworkStorageClient networkStorageClient;
 
-    public Storage(int port, String host) {
+    public AsyncStorageClient(int port, String host) {
         this.networkStorageClient = new NettyClient(port, host);
         logger.info("Storage client created");
     }
@@ -71,7 +71,6 @@ public class Storage implements StorageClient {
         }
     }
 
-    @Override
     public <T> ClientFuture put(String key, T value) {
         StringJoiner basicMessage = createBasicMessage(Operation.PUT, key);
         basicMessage.add(formField("value_type", value.getClass().getSimpleName()));
@@ -79,18 +78,15 @@ public class Storage implements StorageClient {
         return new ClientFuture(basicMessage + ";");
     }
 
-    @Override
     public ClientFuture get(String key) {
         StringJoiner basicMessage = createBasicMessage(Operation.GET, key);
         return new ClientFuture(basicMessage + ";");
     }
 
-    @Override
-    public <T> ClientFuture computeIfAbsent(String key, T value) {
+    public <T> ClientFuture putIfAbsent(String key, T value) {
         return computeIfAbsent(key, () -> value);
     }
 
-    @Override
     public <T> ClientFuture computeIfAbsent(String key, ResourceSupplier<T> supplier) {
         ClientFuture getFuture = this.get(key);
         ClientFuture putFuture = this.put(key, supplier.get());
@@ -106,13 +102,11 @@ public class Storage implements StorageClient {
         return getFuture;
     }
 
-    @Override
     public ClientFuture subscribeOn(String key) {
         StringJoiner basicMessage = createBasicMessage(Operation.SUBSCRIBE, key);
         return new ClientFuture(basicMessage + ";");
     }
 
-    @Override
     public <T> ClientFuture putAndSubscribe(String key, T value) {
         return null;
     }

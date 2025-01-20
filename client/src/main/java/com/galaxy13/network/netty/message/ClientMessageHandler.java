@@ -1,5 +1,6 @@
-package com.galaxy13.network.message;
+package com.galaxy13.network.netty.message;
 
+import com.galaxy13.network.message.Response;
 import com.galaxy13.storage.action.ErrorAction;
 import com.galaxy13.storage.action.ResponseAction;
 import io.netty.channel.ChannelHandlerContext;

@@ -1,6 +1,8 @@
 package com.galaxy13;
 
-import com.galaxy13.storage.Storage;
+import com.galaxy13.network.message.MessageCreatorImpl;
+import com.galaxy13.storage.AsyncStorageClient;
+import com.galaxy13.storage.BlockingStorageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -9,20 +11,16 @@ import static java.lang.Thread.sleep;
 public class ClientTest {
     private static final Logger logger = LoggerFactory.getLogger(ClientTest.class);
 
-    public static void main(String[] args) throws InterruptedException {
-        var storage = new Storage(8081, "localhost");
-        storage.subscribeOn("test")
-                .onResponse(response -> logger.info(response.toString()))
-                .execute();
+    public static void main(String[] args){
+        var messageCreator = new MessageCreatorImpl(";", ":");
+        var storage = new BlockingStorageClient(8081, "localhost", messageCreator);
 
-        sleep(1000);
+        logger.info(storage.put("key1", "value1"));
+        logger.info(storage.put("key2", "value2"));
 
-        storage.computeIfAbsent("test", 5).execute();
+        logger.info(storage.get("key1"));
+        logger.info(storage.get("key2"));
 
-        sleep(1000);
-
-        storage.put("test", 12345)
-                .onResponse(response -> {})
-                .execute();
+        logger.info(storage.get("key3"));
     }
 }

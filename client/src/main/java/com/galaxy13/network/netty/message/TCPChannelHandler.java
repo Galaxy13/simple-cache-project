@@ -1,4 +1,4 @@
-package com.galaxy13.network.message;
+package com.galaxy13.network.netty.message;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;

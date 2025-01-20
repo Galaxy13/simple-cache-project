@@ -3,8 +3,6 @@ package com.galaxy13.network.message;
 import com.galaxy13.network.MessageCode;
 import com.galaxy13.storage.Value;
 
-import java.util.StringJoiner;
-
 public class MessageCreatorImpl implements MessageCreator {
 
     private final String fieldDelimiter;
@@ -17,24 +15,23 @@ public class MessageCreatorImpl implements MessageCreator {
 
     @Override
     public String createResponse(Value value) {
-        StringJoiner joiner = new StringJoiner(fieldDelimiter);
-        joiner.add(createCodeMessage(MessageCode.OK));
-        joiner.add("value_type" + equalSign + value.type());
-        joiner.add("value" + equalSign + value.value());
-        return joiner + fieldDelimiter;
+        return createCodeMessage(MessageCode.OK) +
+                createFieldValue("value", value.value());
     }
 
     @Override
     public String createCodeMessage(MessageCode messageCode) {
-        return "code" + equalSign + messageCode.code() + fieldDelimiter;
+        return createFieldValue("code", messageCode.code());
+    }
+
+    private String createFieldValue(String fieldName, String value) {
+        return fieldName + equalSign + value + fieldDelimiter;
     }
 
     @Override
     public String createSubscriptionResponse(String key, Value value) {
-        StringJoiner joiner = new StringJoiner(fieldDelimiter);
-        joiner.add(createCodeMessage(MessageCode.SUBSCRIPTION_RESPONSE));
-        joiner.add("key" + equalSign + key);
-        joiner.add("value" + equalSign + value.value());
-        return joiner + fieldDelimiter;
+        return createCodeMessage(MessageCode.SUBSCRIPTION_RESPONSE) +
+                createFieldValue("key", key) +
+                createFieldValue("value", value.value());
     }
 }

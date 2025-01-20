@@ -17,10 +17,9 @@ public class NettyServer implements StorageServer {
     private static final Logger logger = LoggerFactory.getLogger(NettyServer.class);
     private final int port;
 
+    private final MessageHandler handler;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
-
-    private final MessageHandler handler;
 
     public NettyServer(int port, MessageHandler handler) {
         this.port = port;
@@ -38,7 +37,8 @@ public class NettyServer implements StorageServer {
                     .channel(NioServerSocketChannel.class)
                     .localAddress(new InetSocketAddress(port))
                     .childHandler(new SimpleTCPChanelInitializer(handler))
-                    .childOption(ChannelOption.SO_KEEPALIVE, true);
+                    .childOption(ChannelOption.SO_KEEPALIVE, true)
+                    .childOption(ChannelOption.SO_TIMEOUT, 1000);
             ChannelFuture future = bootstrap.bind(port).sync();
             if (future.isSuccess()) {
                 logger.info("Cache server started at port {}", port);
@@ -52,7 +52,9 @@ public class NettyServer implements StorageServer {
     }
 
     @Override
-    public void stop() throws InterruptedException {
-
+    public void stop() {
+        logger.info("Cache server stopped by user");
+        workerGroup.shutdownGracefully();
+        bossGroup.shutdownGracefully();
     }
 }

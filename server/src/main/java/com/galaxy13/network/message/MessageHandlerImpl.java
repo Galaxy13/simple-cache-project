@@ -45,7 +45,6 @@ public class MessageHandlerImpl implements MessageHandler{
                 msg = messageCreator.createResponse(result.get());
                 if(processor.isModifying()){
                     subscriptionHandler.handleModification(result.get(), fields.get("key"));
-                    return;
                 }
             } else {
                 msg = messageCreator.createCodeMessage(MessageCode.NOT_PRESENT);

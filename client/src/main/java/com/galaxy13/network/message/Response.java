@@ -27,13 +27,8 @@ public class Response {
         return new Response(message);
     }
 
-
     public MessageCode getCode() {
         return code;
-    }
-
-    public Optional<String> getValueType() {
-        return Optional.ofNullable(valueType);
     }
 
     public Optional<String> getValue() {

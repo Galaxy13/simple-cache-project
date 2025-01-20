@@ -1,6 +1,7 @@
-package com.galaxy13.network;
+package com.galaxy13.network.netty;
 
-import com.galaxy13.network.message.ClientMessageHandler;
+import com.galaxy13.network.NetworkStorageClient;
+import com.galaxy13.network.netty.message.ClientMessageHandler;
 import com.galaxy13.storage.action.ErrorAction;
 import com.galaxy13.storage.action.ResponseAction;
 import io.netty.bootstrap.Bootstrap;
@@ -15,7 +16,7 @@ import io.netty.handler.codec.string.StringEncoder;
 
 import java.net.InetSocketAddress;
 
-public class NettyClient implements NetworkStorageClient{
+public class NettyClient implements NetworkStorageClient {
 
     private final NioEventLoopGroup group = new NioEventLoopGroup();
     private final int port;

@@ -11,9 +11,8 @@ public class PutProcessor implements MessageProcessor {
     public Optional<Value> process(Storage storage, Map<String, String> fields) {
         String key = fields.get("key");
         String value = fields.get("value");
-        String type = fields.get("value_type");
-        if (key != null && value != null && type != null) {
-            Value result = storage.put(key, new Value(type, value));
+        if (key != null && value != null) {
+            Value result = storage.put(key, new Value(value));
             return Optional.of(result);
         } else {
             return Optional.empty();
