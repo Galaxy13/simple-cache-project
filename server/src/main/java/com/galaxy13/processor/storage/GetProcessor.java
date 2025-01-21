@@ -1,14 +1,20 @@
 package com.galaxy13.processor.storage;
 
+import com.galaxy13.network.message.MessageCreator;
 import com.galaxy13.storage.Storage;
 import com.galaxy13.storage.Value;
+import io.netty.channel.Channel;
 
 import java.util.Map;
 import java.util.Optional;
 
-public class GetProcessor implements MessageProcessor {
+public class GetProcessor extends AbstractStorageProcessor implements StorageProcessor {
+    public GetProcessor(Storage storage, MessageCreator creator) {
+        super(storage, creator);
+    }
+
     @Override
-    public Optional<Value> process(Storage storage, Map<String, String> fields) {
+    public Optional<Value> process(Channel channel,  Map<String, String> fields) {
         String key = fields.get("key");
         if (key != null) {
             Optional<Value> value = storage.get(key);

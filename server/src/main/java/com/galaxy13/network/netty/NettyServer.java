@@ -1,6 +1,5 @@
 package com.galaxy13.network.netty;
 
-import com.galaxy13.network.StorageServer;
 import com.galaxy13.network.message.MessageHandler;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
