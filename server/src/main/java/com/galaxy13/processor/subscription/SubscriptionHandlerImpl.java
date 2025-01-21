@@ -24,18 +24,31 @@ public class SubscriptionHandlerImpl implements SubscriptionHandler {
     }
 
     @Override
-    public void subscribe(String key, Channel channel) {
-        subscriptions.computeIfAbsent(key, k -> new ArrayList<>()).add(channel);
-        String msg = messageCreator.createCodeMessage(MessageCode.SUBSCRIPTION_SUCCESS);
-        channel.writeAndFlush(msg);
+    public void subscribe(Map<String, String> messageFields, Channel channel) {
+        String key = messageFields.get("key");
+        if (key != null) {
+            subscriptions.computeIfAbsent(key, k -> new ArrayList<>()).add(channel);
+            logger.info("Subscription created on key: {} for channel: {}", key, channel);
+            String msg = messageCreator.createCodeMessage(MessageCode.SUBSCRIPTION_SUCCESS);
+            channel.writeAndFlush(msg);
+        } else {
+            logger.warn("Subscribe failed: key is null");
+            channel.writeAndFlush(messageCreator.createCodeMessage(MessageCode.SUBSCRIPTION_ERROR));
+        }
     }
 
     @Override
     public void handleModification(Value value, String key) {
+        logger.trace("Subscription handling value {} for key {}", value, key);
         List<Channel> subscriptionChannels = subscriptions.get(key);
         if (subscriptionChannels != null) {
             String msg = messageCreator.createSubscriptionResponse(key, value);
-            subscriptionChannels.forEach(channel -> channel.writeAndFlush(msg));
+            subscriptionChannels.forEach(channel ->
+                    {
+                        channel.writeAndFlush(msg);
+                        logger.trace("Sending subscription response to channel: {}", channel);
+                    });
         }
+        logger.trace("No channels subscribed for key {}", key);
     }
 }

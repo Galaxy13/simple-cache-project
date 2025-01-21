@@ -6,7 +6,8 @@ public enum MessageCode {
     SUBSCRIPTION_SUCCESS("202"),
     NOT_PRESENT("301"),
     UNSUPPORTED_OPERATION("302"),
-    FORMAT_EXCEPTION("303");
+    FORMAT_EXCEPTION("303"),
+    SUBSCRIPTION_ERROR("304"),;
 
     private final String label;
 
