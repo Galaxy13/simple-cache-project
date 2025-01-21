@@ -37,7 +37,7 @@ public class NettyServer implements StorageServer {
                     .localAddress(new InetSocketAddress(port))
                     .childHandler(new SimpleTCPChanelInitializer(handler))
                     .childOption(ChannelOption.SO_KEEPALIVE, true)
-                    .childOption(ChannelOption.SO_TIMEOUT, 1000);
+                    .option(ChannelOption.SO_TIMEOUT, 2000);
             ChannelFuture future = bootstrap.bind(port).sync();
             if (future.isSuccess()) {
                 logger.info("Cache server started at port {}", port);

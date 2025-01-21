@@ -53,8 +53,11 @@ public class ProcessorControllerImpl implements ProcessorController {
                         String key = messageFields.get("key");
                         this.subscriptionHandler.handleModification(value, key);
                     }
+                } else {
+                    channel.writeAndFlush(messageCreator.createCodeMessage(MessageCode.NOT_PRESENT));
                 }
             }
         }
+        channel.close().syncUninterruptibly();
     }
 }
