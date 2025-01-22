@@ -1,23 +1,27 @@
 package com.galaxy13.storage;
 
+import com.galaxy13.network.message.creator.MessageCreator;
+import com.galaxy13.network.message.creator.MessageCreatorImpl;
 import com.galaxy13.network.netty.NettyClient;
 import com.galaxy13.network.NetworkStorageClient;
-import com.galaxy13.network.message.MessageCode;
+import com.galaxy13.network.message.code.MessageCode;
 import com.galaxy13.storage.action.ErrorAction;
 import com.galaxy13.storage.action.ResourceSupplier;
 import com.galaxy13.storage.action.ResponseAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.StringJoiner;
+import java.util.Map;
 
 public class AsyncStorageClient{
     private static final Logger logger = LoggerFactory.getLogger(AsyncStorageClient.class);
 
     private final NetworkStorageClient networkStorageClient;
+    private final MessageCreator messageCreator;
 
     public AsyncStorageClient(int port, String host) {
         this.networkStorageClient = new NettyClient(port, host);
+        this.messageCreator = new MessageCreatorImpl(";", ":");
         logger.info("Storage client created");
     }
 
@@ -71,28 +75,26 @@ public class AsyncStorageClient{
         }
     }
 
-    public <T> ClientFuture put(String key, T value) {
-        StringJoiner basicMessage = createBasicMessage(Operation.PUT, key);
-        basicMessage.add(formField("value_type", value.getClass().getSimpleName()));
-        basicMessage.add(formField("value", value.toString()));
-        return new ClientFuture(basicMessage + ";");
+    public ClientFuture put(String key, String value) {
+        String putMsg = messageCreator.createRequest(Operation.PUT, Map.of("key", key, "value", value));
+        return new ClientFuture(putMsg);
     }
 
     public ClientFuture get(String key) {
-        StringJoiner basicMessage = createBasicMessage(Operation.GET, key);
-        return new ClientFuture(basicMessage + ";");
+        String getMsg = messageCreator.createRequest(Operation.GET, Map.of("key", key));
+        return new ClientFuture(getMsg);
     }
 
-    public <T> ClientFuture putIfAbsent(String key, T value) {
+    public ClientFuture putIfAbsent(String key, String value) {
         return computeIfAbsent(key, () -> value);
     }
 
-    public <T> ClientFuture computeIfAbsent(String key, ResourceSupplier<T> supplier) {
+    public ClientFuture computeIfAbsent(String key, ResourceSupplier<String> supplier) {
         ClientFuture getFuture = this.get(key);
         ClientFuture putFuture = this.put(key, supplier.get());
         getFuture.onResponse(
                 response -> {
-                    if (response.getCode().equals(MessageCode.NOT_PRESENTED)) {
+                    if (response.getCode().equals(MessageCode.NOT_PRESENT)) {
                         putFuture.execute();
                         logger.info("Put future executed");
                     }
@@ -103,23 +105,21 @@ public class AsyncStorageClient{
     }
 
     public ClientFuture subscribeOn(String key) {
-        StringJoiner basicMessage = createBasicMessage(Operation.SUBSCRIBE, key);
-        return new ClientFuture(basicMessage + ";");
+        String subscribeMsg = messageCreator.createRequest(Operation.SUBSCRIBE, Map.of("key", key));
+        return new ClientFuture(subscribeMsg);
     }
 
-    public <T> ClientFuture putAndSubscribe(String key, T value) {
-        return null;
-    }
-
-
-    private StringJoiner createBasicMessage(Operation operation, String key) {
-        StringJoiner sj = new StringJoiner(";");
-        sj.add(formField("op", operation.toString()));
-        sj.add(formField("key", key));
-        return sj;
-    }
-
-    private String formField(String field, String value) {
-        return field + ":" + value;
+    public ClientFuture putAndSubscribe(String key, String value) {
+        ClientFuture putFuture = this.put(key, value);
+        ClientFuture subscribeFuture = this.subscribeOn(key);
+        putFuture.onResponse(
+                response -> {
+                    if (response.getCode().equals(MessageCode.OK)) {
+                        subscribeFuture.execute();
+                    }
+                }
+        ).onError(error -> logger.error("Error occurred while executing putAndSubscribe operation", error));
+        putFuture.setChildFuture(subscribeFuture);
+        return putFuture;
     }
 }

@@ -1,4 +1,4 @@
-package com.galaxy13.network.netty.message;
+package com.galaxy13.network.message.handler.netty;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -10,12 +10,24 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 public class TCPChannelHandler extends SimpleChannelInboundHandler<String> {
-    private static final Logger logger = LoggerFactory.getLogger(ClientMessageHandler.class);
+    private static final Logger logger = LoggerFactory.getLogger(TCPChannelHandler.class);
+
+    private final MessageAsyncHandler clientMessageAsyncHandler;
+
+    public TCPChannelHandler(final MessageAsyncHandler clientMessageAsyncHandler) {
+        this.clientMessageAsyncHandler = clientMessageAsyncHandler;
+    }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) {
         logger.info("Received message: {}", msg);
-        Map<String, String> msgMap = getValuesFromMsg(msg);
+        clientMessageAsyncHandler.handleMessage(msg);
+    }
+
+    @Override
+    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        logger.error("Exception caught", cause);
+        clientMessageAsyncHandler.exceptionCaught(cause);
     }
 
     private Map<String, String> getValuesFromMsg(String msg) {

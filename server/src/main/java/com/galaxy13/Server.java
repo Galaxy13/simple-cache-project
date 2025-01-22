@@ -1,10 +1,10 @@
 package com.galaxy13;
 
 import com.galaxy13.network.netty.StorageServer;
-import com.galaxy13.network.message.MessageCreator;
-import com.galaxy13.network.message.MessageCreatorImpl;
-import com.galaxy13.network.message.MessageHandler;
-import com.galaxy13.network.message.MessageHandlerImpl;
+import com.galaxy13.network.message.creator.MessageCreator;
+import com.galaxy13.network.message.creator.MessageCreatorImpl;
+import com.galaxy13.network.message.handler.MessageHandler;
+import com.galaxy13.network.message.handler.MessageHandlerImpl;
 import com.galaxy13.network.netty.NettyServer;
 import com.galaxy13.processor.ProcessorController;
 import com.galaxy13.processor.ProcessorControllerImpl;

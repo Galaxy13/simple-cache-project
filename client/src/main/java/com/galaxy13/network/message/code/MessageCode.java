@@ -1,11 +1,13 @@
-package com.galaxy13.network.message;
+package com.galaxy13.network.message.code;
 
 public enum MessageCode {
     OK("200"),
     SUBSCRIPTION_RESPONSE("201"),
     SUBSCRIPTION_SUCCESS("202"),
-    NOT_PRESENTED("301"),
-    UNSUPPORTED_OPERATION("302");
+    NOT_PRESENT("301"),
+    UNSUPPORTED_OPERATION("302"),
+    FORMAT_EXCEPTION("303"),
+    SUBSCRIPTION_ERROR("304"),;
 
     private final String code;
 

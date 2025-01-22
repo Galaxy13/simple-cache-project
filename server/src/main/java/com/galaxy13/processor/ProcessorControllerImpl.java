@@ -1,7 +1,7 @@
 package com.galaxy13.processor;
 
 import com.galaxy13.network.message.MessageCode;
-import com.galaxy13.network.message.MessageCreator;
+import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.processor.subscription.SubscriptionHandler;
 import com.galaxy13.processor.subscription.SubscriptionHandlerImpl;
 import com.galaxy13.processor.storage.GetProcessor;

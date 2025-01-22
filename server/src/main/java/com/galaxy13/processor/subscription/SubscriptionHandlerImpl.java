@@ -1,7 +1,7 @@
 package com.galaxy13.processor.subscription;
 
 import com.galaxy13.network.message.MessageCode;
-import com.galaxy13.network.message.MessageCreator;
+import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.storage.Value;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;

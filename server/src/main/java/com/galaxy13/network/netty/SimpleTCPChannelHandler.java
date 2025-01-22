@@ -1,6 +1,6 @@
 package com.galaxy13.network.netty;
 
-import com.galaxy13.network.message.MessageHandler;
+import com.galaxy13.network.message.handler.MessageHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.LoggerFactory;

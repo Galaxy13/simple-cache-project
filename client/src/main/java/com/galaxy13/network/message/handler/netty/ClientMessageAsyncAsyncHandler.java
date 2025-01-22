@@ -1,10 +1,8 @@
-package com.galaxy13.network.netty.message;
+package com.galaxy13.network.message.handler.netty;
 
 import com.galaxy13.network.message.Response;
 import com.galaxy13.storage.action.ErrorAction;
 import com.galaxy13.storage.action.ResponseAction;
-import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,24 +10,18 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ClientMessageHandler extends SimpleChannelInboundHandler<String> {
-    private static final Logger logger = LoggerFactory.getLogger(ClientMessageHandler.class);
+public class ClientMessageAsyncAsyncHandler implements MessageAsyncHandler {
+    private static final Logger logger = LoggerFactory.getLogger(ClientMessageAsyncAsyncHandler.class);
 
     private final ResponseAction responseAction;
     private final ErrorAction errorAction;
 
-    public ClientMessageHandler(ResponseAction respAction, ErrorAction errAction) {
+    public ClientMessageAsyncAsyncHandler(ResponseAction respAction, ErrorAction errAction) {
         this.responseAction = respAction;
         this.errorAction = errAction;
     }
 
-    @Override
-    public void channelActive(ChannelHandlerContext ctx) throws Exception {
-        super.channelActive(ctx);
-    }
-
-    @Override
-    protected void channelRead0(ChannelHandlerContext ctx, String msg) throws InterruptedException {
+    public void handleMessage(String msg) {
         logger.info("Received message: {}", msg);
         Map<String, String> msgMap = getValuesFromMsg(msg);
         Response response;
@@ -40,12 +32,10 @@ public class ClientMessageHandler extends SimpleChannelInboundHandler<String> {
             return;
         }
         responseAction.action(response);
-//        ctx.channel().close();
     }
 
     @Override
-    public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        logger.error("Exception caught", cause);
+    public void exceptionCaught(Throwable cause) {
         errorAction.execute((Exception) cause);
     }
 

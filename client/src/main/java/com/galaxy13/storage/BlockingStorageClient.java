@@ -2,9 +2,11 @@ package com.galaxy13.storage;
 
 
 import com.galaxy13.network.blocking.TCPBlockingClient;
-import com.galaxy13.network.message.MessageCode;
-import com.galaxy13.network.message.MessageCreator;
+import com.galaxy13.network.message.code.MessageCode;
+import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.network.message.Response;
+import com.galaxy13.network.message.creator.MessageCreatorImpl;
+import com.galaxy13.network.message.handler.blocking.ClientMessageBlockingHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,9 +19,9 @@ public class BlockingStorageClient {
     private final TCPBlockingClient blockingClient;
     private final MessageCreator messageCreator;
 
-    public BlockingStorageClient(int port, String host, MessageCreator creator) {
-        this.blockingClient = new TCPBlockingClient(port, host);
-        this.messageCreator = creator;
+    public BlockingStorageClient(int port, String host) {
+        this.blockingClient = new TCPBlockingClient(port, host, new ClientMessageBlockingHandler());
+        this.messageCreator = new MessageCreatorImpl(";", ":");
     }
 
     public String put(String key, String value) {

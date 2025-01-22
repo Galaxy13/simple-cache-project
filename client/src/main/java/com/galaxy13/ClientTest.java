@@ -1,7 +1,6 @@
 package com.galaxy13;
 
-import com.galaxy13.network.message.MessageCreatorImpl;
-import com.galaxy13.storage.AsyncStorageClient;
+import com.galaxy13.network.message.creator.MessageCreatorImpl;
 import com.galaxy13.storage.BlockingStorageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -13,7 +12,7 @@ public class ClientTest {
 
     public static void main(String[] args){
         var messageCreator = new MessageCreatorImpl(";", ":");
-        var storage = new BlockingStorageClient(8081, "localhost", messageCreator);
+        var storage = new BlockingStorageClient(8081, "localhost");
 
         logger.info(storage.put("key1", "value1"));
         logger.info(storage.put("key2", "value2"));

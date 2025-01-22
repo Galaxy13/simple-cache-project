@@ -1,4 +1,4 @@
-package com.galaxy13.network.message;
+package com.galaxy13.network.message.creator;
 
 import com.galaxy13.storage.Operation;
 

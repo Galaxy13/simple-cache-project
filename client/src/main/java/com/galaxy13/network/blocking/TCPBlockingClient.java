@@ -1,24 +1,25 @@
 package com.galaxy13.network.blocking;
 
 import com.galaxy13.network.message.Response;
+import com.galaxy13.network.message.handler.blocking.MessageBlockingHandler;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
-import java.util.Arrays;
-import java.util.Map;
-import java.util.stream.Collectors;
 
 public class TCPBlockingClient{
 
     private final int port;
     private final String host;
+    private final MessageBlockingHandler handler;
 
-    public TCPBlockingClient(int port, String host){
+    public TCPBlockingClient(int port, String host, MessageBlockingHandler messageHandler){
         this.port = port;
         this.host = host;
+        this.handler = messageHandler;
     }
 
     public Response sendMessage(String message) throws IOException {
@@ -30,24 +31,21 @@ public class TCPBlockingClient{
             outStream.write(messageBytes);
             outStream.flush();
 
-            byte[] responseBuffer = new byte[1024];
-            int bytesRead = inStream.read(responseBuffer);
-            if (bytesRead != -1) {
-                String response = new String(responseBuffer, 0, bytesRead, StandardCharsets.UTF_8);
-                Map<String, String> fieldsMap = getValuesFromMsg(response);
-                return Response.readFromMsg(fieldsMap);
-            } else {
-                throw new IOException("No response received from server.");
-            }
+            return handleResponseBytes(inStream);
         } catch (IOException e) {
+            handler.exceptionCaught(e);
             return null;
         }
     }
 
-    private Map<String, String> getValuesFromMsg(String msg) {
-        return Arrays.stream(msg.split(";"))
-                .map(s -> s.split(":"))
-                .filter(parts -> parts.length == 2)
-                .collect(Collectors.toMap(parts -> parts[0], parts -> parts[1].strip()));
+    private Response handleResponseBytes(InputStream inputStream) throws IOException {
+        byte[] responseBuffer = new byte[1024];
+        int bytesRead = inputStream.read(responseBuffer);
+        if (bytesRead != -1) {
+            String response = new String(responseBuffer, 0, bytesRead, StandardCharsets.UTF_8);
+            return handler.handle(response);
+        } else {
+            throw new IOException("No response received from server.");
+        }
     }
 }

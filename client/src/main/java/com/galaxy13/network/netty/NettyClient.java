@@ -1,7 +1,8 @@
 package com.galaxy13.network.netty;
 
 import com.galaxy13.network.NetworkStorageClient;
-import com.galaxy13.network.netty.message.ClientMessageHandler;
+import com.galaxy13.network.message.handler.netty.ClientMessageAsyncAsyncHandler;
+import com.galaxy13.network.message.handler.netty.TCPChannelHandler;
 import com.galaxy13.storage.action.ErrorAction;
 import com.galaxy13.storage.action.ResponseAction;
 import io.netty.bootstrap.Bootstrap;
@@ -38,7 +39,7 @@ public class NettyClient implements NetworkStorageClient {
                     public void initChannel(SocketChannel ch) {
                         ch.pipeline().addLast(new StringDecoder());
                         ch.pipeline().addLast(new StringEncoder());
-                        ch.pipeline().addLast(new ClientMessageHandler(respAction, errorAction));
+                        ch.pipeline().addLast(new TCPChannelHandler(new ClientMessageAsyncAsyncHandler(respAction, errorAction)));
                     }
                 });
         ChannelFuture future = bootstrap.connect().sync();

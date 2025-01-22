@@ -1,4 +1,4 @@
-package com.galaxy13.network.message;
+package com.galaxy13.network.message.handler;
 
 
 import com.galaxy13.processor.ProcessorController;
@@ -9,7 +9,7 @@ import org.slf4j.LoggerFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 
-public class MessageHandlerImpl implements MessageHandler{
+public class MessageHandlerImpl implements MessageHandler {
     private final Logger logger = LoggerFactory.getLogger(MessageHandlerImpl.class);
 
     private final ProcessorController controller;
