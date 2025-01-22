@@ -11,7 +11,6 @@ public class ClientTest {
     private static final Logger logger = LoggerFactory.getLogger(ClientTest.class);
 
     public static void main(String[] args){
-        var messageCreator = new MessageCreatorImpl(";", ":");
         var storage = new BlockingStorageClient(8081, "localhost");
 
         logger.info(storage.put("key1", "value1"));
