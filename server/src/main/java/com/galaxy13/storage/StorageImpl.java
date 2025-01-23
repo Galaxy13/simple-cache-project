@@ -5,7 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class StorageImpl extends AbstractStorage implements Storage {
+public class StorageImpl extends AbstractStorage<String> implements Storage<String> {
     protected Map<String, WeakReference<Value>> storage;
 
     public StorageImpl(int capacity) {

@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class PutProcessor extends AbstractStorageProcessor implements StorageProcessor {
-    public PutProcessor(Storage storage, MessageCreator creator) {
+    public PutProcessor(Storage<String> storage, MessageCreator creator) {
         super(storage, creator);
     }
 

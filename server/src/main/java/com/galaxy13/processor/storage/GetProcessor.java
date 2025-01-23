@@ -9,7 +9,7 @@ import java.util.Map;
 import java.util.Optional;
 
 public class GetProcessor extends AbstractStorageProcessor implements StorageProcessor {
-    public GetProcessor(Storage storage, MessageCreator creator) {
+    public GetProcessor(Storage<String> storage, MessageCreator creator) {
         super(storage, creator);
     }
 

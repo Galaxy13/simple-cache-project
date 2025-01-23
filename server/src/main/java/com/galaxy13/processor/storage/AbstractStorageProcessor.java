@@ -9,10 +9,10 @@ import java.util.Map;
 import java.util.Optional;
 
 public abstract class AbstractStorageProcessor implements StorageProcessor {
-    protected final Storage storage;
+    protected final Storage<String> storage;
     protected final MessageCreator messageCreator;
 
-    protected AbstractStorageProcessor(Storage storage, MessageCreator creator) {
+    protected AbstractStorageProcessor(Storage<String> storage, MessageCreator creator) {
         this.storage = storage;
         this.messageCreator = creator;
     }

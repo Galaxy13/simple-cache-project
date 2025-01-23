@@ -22,7 +22,7 @@ public class ProcessorControllerImpl implements ProcessorController {
     private final SubscriptionHandler subscriptionHandler;
 
 
-    public ProcessorControllerImpl(Storage storage, MessageCreator messageCreator) {
+    public ProcessorControllerImpl(Storage<String> storage, MessageCreator messageCreator) {
         this.subscriptionHandler = new SubscriptionHandlerImpl(messageCreator);
         this.storageProcessors = new HashMap<>(){{
             put("GET", new GetProcessor(storage, messageCreator));
