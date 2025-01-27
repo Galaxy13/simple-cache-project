@@ -1,11 +1,11 @@
 package com.galaxy13.processor.storage;
 
+import com.galaxy13.network.netty.decoder.CacheMessage;
 import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.storage.Storage;
 import com.galaxy13.storage.Value;
 import io.netty.channel.Channel;
 
-import java.util.Map;
 import java.util.Optional;
 
 public abstract class AbstractStorageProcessor implements StorageProcessor {
@@ -18,7 +18,7 @@ public abstract class AbstractStorageProcessor implements StorageProcessor {
     }
 
     @Override
-    public Optional<Value> process(Channel channel, Map<String, String> fields) {
+    public Optional<Value> process(Channel channel, CacheMessage message) {
         return Optional.empty();
     }
 

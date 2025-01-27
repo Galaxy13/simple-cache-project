@@ -1,24 +1,31 @@
 package com.galaxy13;
 
-import com.galaxy13.network.message.creator.MessageCreatorImpl;
-import com.galaxy13.storage.BlockingStorageClient;
+import com.galaxy13.storage.AsyncStorageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import static java.lang.Thread.sleep;
 
 public class ClientTest {
     private static final Logger logger = LoggerFactory.getLogger(ClientTest.class);
 
     public static void main(String[] args){
-        var storage = new BlockingStorageClient(8081, "localhost");
+        var storage = new AsyncStorageClient(8081, "localhost");
 
-        logger.info(storage.put("key1", "value1"));
-        logger.info(storage.put("key2", "value2"));
+        long startTime = System.currentTimeMillis();
+        storage.put("key1", "value1")
+                .onResponse(response -> {
+                    if(response.getValue().isPresent()){
+                        logger.info("PUT");
+                    }
+                })
+                .execute();
 
-        logger.info(storage.get("key1"));
-        logger.info(storage.get("key2"));
-
-        logger.info(storage.get("key3"));
+            storage.get("key1")
+                    .onResponse(response -> {
+                        if(response.getValue().isPresent()){
+                            logger.info("GET");
+                        }
+                    })
+                    .execute();
+        logger.info("Time taken: " + (System.currentTimeMillis() - startTime));
     }
 }

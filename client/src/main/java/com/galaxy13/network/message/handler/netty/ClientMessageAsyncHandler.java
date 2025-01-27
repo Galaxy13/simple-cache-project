@@ -10,13 +10,13 @@ import java.util.Arrays;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-public class ClientMessageAsyncAsyncHandler implements MessageAsyncHandler {
-    private static final Logger logger = LoggerFactory.getLogger(ClientMessageAsyncAsyncHandler.class);
+public class ClientMessageAsyncHandler implements MessageAsyncHandler {
+    private static final Logger logger = LoggerFactory.getLogger(ClientMessageAsyncHandler.class);
 
     private final ResponseAction responseAction;
     private final ErrorAction errorAction;
 
-    public ClientMessageAsyncAsyncHandler(ResponseAction respAction, ErrorAction errAction) {
+    public ClientMessageAsyncHandler(ResponseAction respAction, ErrorAction errAction) {
         this.responseAction = respAction;
         this.errorAction = errAction;
     }

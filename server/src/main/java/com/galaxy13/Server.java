@@ -3,8 +3,6 @@ package com.galaxy13;
 import com.galaxy13.network.netty.StorageServer;
 import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.network.message.creator.MessageCreatorImpl;
-import com.galaxy13.network.message.handler.MessageHandler;
-import com.galaxy13.network.message.handler.MessageHandlerImpl;
 import com.galaxy13.network.netty.NettyServer;
 import com.galaxy13.processor.ProcessorController;
 import com.galaxy13.processor.ProcessorControllerImpl;
@@ -16,8 +14,7 @@ public class Server {
         Storage storage = new StorageImpl(100);
         MessageCreator messageCreator = new MessageCreatorImpl(";", ":");
         ProcessorController processorController = new ProcessorControllerImpl(storage, messageCreator);
-        MessageHandler handler = new MessageHandlerImpl(processorController);
-        StorageServer server = new NettyServer(8081, handler);
+        StorageServer server = new NettyServer(8081, processorController);
         server.start();
     }
 }

@@ -1,5 +1,6 @@
 package com.galaxy13.processor.subscription;
 
+import com.galaxy13.network.netty.decoder.CacheMessage;
 import com.galaxy13.network.message.MessageCode;
 import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.storage.Value;
@@ -24,8 +25,8 @@ public class SubscriptionHandlerImpl implements SubscriptionHandler {
     }
 
     @Override
-    public void subscribe(Map<String, String> messageFields, Channel channel) {
-        String key = messageFields.get("key");
+    public void subscribe(CacheMessage message, Channel channel) {
+        String key = message.getParameter("key");
         if (key != null) {
             subscriptions.computeIfAbsent(key, k -> new ArrayList<>()).add(channel);
             logger.info("Subscription created on key: {} for channel: {}", key, channel);
