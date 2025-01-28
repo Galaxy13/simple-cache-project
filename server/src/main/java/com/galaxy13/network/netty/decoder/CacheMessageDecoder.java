@@ -1,9 +1,13 @@
 package com.galaxy13.network.netty.decoder;
 
+import com.galaxy13.network.message.MessageCode;
 import com.galaxy13.network.message.Operation;
+import com.galaxy13.network.message.request.CacheMessage;
+import com.galaxy13.network.message.response.CacheResponse;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.CorruptedFrameException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -17,7 +21,7 @@ public class CacheMessageDecoder extends ByteToMessageDecoder {
     private static final Logger logger = LoggerFactory.getLogger(CacheMessageDecoder.class);
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) throws Exception {
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out){
         if (in.readableBytes() > 4) {
             String message = in.toString(in.readerIndex(), in.readableBytes(), StandardCharsets.UTF_8);
             in.readerIndex(in.writerIndex());
@@ -40,8 +44,9 @@ public class CacheMessageDecoder extends ByteToMessageDecoder {
                 };
                 out.add(cacheMessage);
             } catch (IllegalArgumentException e){
-                logger.error("Invalid operation", e);
-                ctx.close();
+                logger.info("Invalid operation", e);
+                ctx.writeAndFlush(CacheResponse.create(MessageCode.FORMAT_EXCEPTION));
+                throw new CorruptedFrameException("Invalid operation");
             }
         }
     }

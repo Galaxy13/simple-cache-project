@@ -1,6 +1,6 @@
 package com.galaxy13.processor.subscription;
 
-import com.galaxy13.network.netty.decoder.CacheMessage;
+import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.storage.Value;
 import io.netty.channel.Channel;
 

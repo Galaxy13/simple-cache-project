@@ -6,25 +6,49 @@ import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.atomic.AtomicInteger;
+
 @ChannelHandler.Sharable
 public class TCPChannelHandler extends SimpleChannelInboundHandler<String> {
     private static final Logger logger = LoggerFactory.getLogger(TCPChannelHandler.class);
 
     private final MessageAsyncHandler clientMessageAsyncHandler;
+    private final AtomicInteger pendingRequests;
+    private final ExecutorService executor;
 
-    public TCPChannelHandler(final MessageAsyncHandler clientMessageAsyncHandler) {
+    public TCPChannelHandler(final MessageAsyncHandler clientMessageAsyncHandler,
+                             final AtomicInteger pendingRequests,
+                             final ExecutorService executor) {
         this.clientMessageAsyncHandler = clientMessageAsyncHandler;
+        this.pendingRequests = pendingRequests;
+        this.executor = executor;
     }
 
     @Override
     protected void channelRead0(ChannelHandlerContext ctx, String msg) {
         logger.info("Received message: {}", msg);
-        clientMessageAsyncHandler.handleMessage(msg);
+        executor.execute(() -> clientMessageAsyncHandler.handleMessage(msg));
+        pendingRequests.decrementAndGet();
+    }
+
+    @Override
+    public void channelReadComplete(ChannelHandlerContext ctx){
+        logger.info("Response received. Closing channel...");
+        ctx.channel().close().addListener(future -> {
+            if (future.isSuccess()) {
+                logger.info("Channel closed");
+            } else {
+                throw new RuntimeException(future.cause());
+            }
+        });
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.error("Exception caught", cause);
         clientMessageAsyncHandler.exceptionCaught(cause);
+        pendingRequests.decrementAndGet();
     }
 }

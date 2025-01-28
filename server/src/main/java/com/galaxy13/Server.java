@@ -13,8 +13,8 @@ public class Server {
     public static void main(String[] args) throws InterruptedException {
         Storage storage = new StorageImpl(100);
         MessageCreator messageCreator = new MessageCreatorImpl(";", ":");
-        ProcessorController processorController = new ProcessorControllerImpl(storage, messageCreator);
-        StorageServer server = new NettyServer(8081, processorController);
+        ProcessorController processorController = new ProcessorControllerImpl(storage);
+        StorageServer server = new NettyServer(8081, processorController, messageCreator);
         server.start();
     }
 }

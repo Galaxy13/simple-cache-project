@@ -1,4 +1,4 @@
-package com.galaxy13.network.netty.decoder;
+package com.galaxy13.network.message.request;
 
 import com.galaxy13.network.message.Operation;
 

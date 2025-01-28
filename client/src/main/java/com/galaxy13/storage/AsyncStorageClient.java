@@ -25,64 +25,29 @@ public class AsyncStorageClient{
         logger.info("Storage client created");
     }
 
-    public class ClientFuture{
-        private ResponseAction responseAction;
-        private ErrorAction errorAction = (e) -> logger.error("Error occurred while executing future", e);
-        private boolean isErrorActionDefault = true;
-        private final String message;
-        private ClientFuture childFuture;
+    public static AsyncStorageClient start(int port, String host) {
+        return new AsyncStorageClient(port, host);
+    }
 
-        public ClientFuture(String message) {
-            this.message = message;
-        }
-
-        public ClientFuture onResponse(ResponseAction responseAction) {
-            if (childFuture != null) {
-                childFuture.onResponse(responseAction);
-                return this;
+    public void shutdown() {
+        try {
+            if (networkStorageClient instanceof NettyClient) {
+                ((NettyClient) networkStorageClient).shutdown();
             }
-            this.responseAction = responseAction;
-            return this;
-        }
-
-        public void setChildFuture(ClientFuture childFuture) {
-            this.childFuture = childFuture;
-        }
-
-        public ClientFuture onError(ErrorAction errorAction) {
-            if (childFuture != null) {
-                childFuture.onError(errorAction);
-                return this;
-            }
-            this.errorAction = errorAction;
-            this.isErrorActionDefault = false;
-            return this;
-        }
-
-        public void execute(){
-            if (responseAction == null) {
-                logger.warn("Action for response not set. Result ignored");
-                return;
-            }
-            if (isErrorActionDefault) {
-                logger.warn("Action for error not set. Using default error (log) handler");
-            }
-            try {
-                networkStorageClient.sendMessage(message, responseAction, errorAction);
-            } catch (InterruptedException e) {
-                logger.warn("Interrupted while sending message", e);
-            }
+        } catch (Exception e) {
+            logger.error("Error closing network storage", e);
+            Thread.currentThread().interrupt();
         }
     }
 
     public ClientFuture put(String key, String value) {
         String putMsg = messageCreator.createRequest(Operation.PUT, Map.of("key", key, "value", value));
-        return new ClientFuture(putMsg);
+        return new ClientFuture(putMsg, networkStorageClient);
     }
 
     public ClientFuture get(String key) {
         String getMsg = messageCreator.createRequest(Operation.GET, Map.of("key", key));
-        return new ClientFuture(getMsg);
+        return new ClientFuture(getMsg, networkStorageClient);
     }
 
     public ClientFuture putIfAbsent(String key, String value) {
@@ -106,7 +71,7 @@ public class AsyncStorageClient{
 
     public ClientFuture subscribeOn(String key) {
         String subscribeMsg = messageCreator.createRequest(Operation.SUBSCRIBE, Map.of("key", key));
-        return new ClientFuture(subscribeMsg);
+        return new ClientFuture(subscribeMsg, networkStorageClient);
     }
 
     public ClientFuture putAndSubscribe(String key, String value) {

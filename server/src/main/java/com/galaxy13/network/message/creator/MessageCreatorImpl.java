@@ -14,24 +14,17 @@ public class MessageCreatorImpl implements MessageCreator {
     }
 
     @Override
-    public String createResponse(Value value) {
-        return createCodeMessage(MessageCode.OK) +
+    public String createResponse(MessageCode code, Value value) {
+        return createResponse(code) +
                 createFieldValue("value", value.value());
     }
 
     @Override
-    public String createCodeMessage(MessageCode messageCode) {
+    public String createResponse(MessageCode messageCode) {
         return createFieldValue("code", messageCode.code());
     }
 
     private String createFieldValue(String fieldName, String value) {
         return fieldName + equalSign + value + fieldDelimiter;
-    }
-
-    @Override
-    public String createSubscriptionResponse(String key, Value value) {
-        return createCodeMessage(MessageCode.SUBSCRIPTION_RESPONSE) +
-                createFieldValue("key", key) +
-                createFieldValue("value", value.value());
     }
 }

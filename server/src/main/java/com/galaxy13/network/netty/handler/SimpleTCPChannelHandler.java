@@ -1,6 +1,6 @@
 package com.galaxy13.network.netty.handler;
 
-import com.galaxy13.network.netty.decoder.CacheMessage;
+import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.processor.ProcessorController;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
