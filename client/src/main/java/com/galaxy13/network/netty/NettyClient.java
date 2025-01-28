@@ -16,11 +16,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Phaser;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class NettyClient implements NetworkStorageClient{
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
