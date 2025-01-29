@@ -1,8 +1,8 @@
-package com.galaxy13.storage;
+package com.galaxy13.client.async;
 
 import com.galaxy13.network.NetworkStorageClient;
-import com.galaxy13.storage.action.ErrorAction;
-import com.galaxy13.storage.action.ResponseAction;
+import com.galaxy13.client.async.action.ErrorAction;
+import com.galaxy13.client.async.action.ResponseAction;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

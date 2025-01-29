@@ -1,4 +1,4 @@
-package com.galaxy13.network.message.handler.blocking;
+package com.galaxy13.network.blocking.handler;
 
 import com.galaxy13.network.message.Response;
 

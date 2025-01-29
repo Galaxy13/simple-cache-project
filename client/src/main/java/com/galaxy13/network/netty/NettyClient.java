@@ -1,23 +1,25 @@
 package com.galaxy13.network.netty;
 
 import com.galaxy13.network.NetworkStorageClient;
-import com.galaxy13.network.message.handler.netty.ClientMessageAsyncHandler;
-import com.galaxy13.network.message.handler.netty.TCPChannelHandler;
-import com.galaxy13.storage.action.ErrorAction;
-import com.galaxy13.storage.action.ResponseAction;
+import com.galaxy13.network.netty.handler.ResponseHandler;
+import com.galaxy13.network.netty.decoder.ResponseDecoder;
+import com.galaxy13.client.async.action.ErrorAction;
+import com.galaxy13.client.async.action.ResponseAction;
 import io.netty.bootstrap.Bootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
-import io.netty.handler.codec.string.StringDecoder;
 import io.netty.handler.codec.string.StringEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
 
 public class NettyClient implements NetworkStorageClient{
@@ -27,15 +29,17 @@ public class NettyClient implements NetworkStorageClient{
     private final int port;
     private final String host;
     private final Phaser pendingRequests;
+    private final List<Future<?>> pendingFutures;
     private final ExecutorService executor;
 
 
-    public NettyClient(int port, String host) {
+    public NettyClient(int port, String host, ExecutorService executor) {
         this.port = port;
         this.host = host;
         this.group = new NioEventLoopGroup();
         this.pendingRequests = new Phaser(1);
-        this.executor = Executors.newCachedThreadPool();
+        this.pendingFutures = new ArrayList<>();
+        this.executor = executor;
     }
 
     @Override
@@ -48,11 +52,12 @@ public class NettyClient implements NetworkStorageClient{
                 .handler(new ChannelInitializer<SocketChannel>() {
                     @Override
                     public void initChannel(SocketChannel ch) {
-                        ch.pipeline().addLast(new StringDecoder());
+                        ch.pipeline().addLast(new ResponseDecoder(";", ":"));
                         ch.pipeline().addLast(new StringEncoder());
-                        ch.pipeline().addLast(new TCPChannelHandler(
-                                new ClientMessageAsyncHandler(respAction, errorAction), pendingRequests, executor)
-                        );
+                        ch.pipeline().addLast(new ResponseHandler(respAction,
+                                errorAction,
+                                pendingRequests,
+                                pendingFutures, executor));
                     }
                 });
         ChannelFuture future = bootstrap.connect().sync();
@@ -71,7 +76,11 @@ public class NettyClient implements NetworkStorageClient{
     public void shutdown(){
         try {
             pendingRequests.arriveAndAwaitAdvance();
-        } catch (IllegalArgumentException e) {
+            for (Future<?> future : pendingFutures) {
+                future.get();
+            }
+            executor.shutdown();
+        } catch (IllegalArgumentException | InterruptedException | ExecutionException e) {
             logger.error("Error closing pending requests", e);
             Thread.currentThread().interrupt();
         }

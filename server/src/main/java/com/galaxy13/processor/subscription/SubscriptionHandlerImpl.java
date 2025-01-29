@@ -30,7 +30,6 @@ public class SubscriptionHandlerImpl implements SubscriptionHandler {
             subscriptions.computeIfAbsent(key, k -> new ArrayList<>()).add(channel);
             logger.info("Subscription created on key: {} for channel: {}", key, channel);
             channel.writeAndFlush(CacheResponse.create(MessageCode.SUBSCRIPTION_SUCCESS));
-
         } else {
             logger.warn("Subscribe failed: key is null");
             channel.writeAndFlush(CacheResponse.create(MessageCode.SUBSCRIPTION_ERROR));

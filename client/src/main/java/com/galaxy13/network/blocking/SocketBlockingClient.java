@@ -1,7 +1,7 @@
 package com.galaxy13.network.blocking;
 
 import com.galaxy13.network.message.Response;
-import com.galaxy13.network.message.handler.blocking.MessageBlockingHandler;
+import com.galaxy13.network.blocking.handler.MessageBlockingHandler;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
@@ -10,18 +10,19 @@ import java.io.InputStream;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
 
-public class TCPBlockingClient{
+public class SocketBlockingClient implements BlockingClient {
 
     private final int port;
     private final String host;
     private final MessageBlockingHandler handler;
 
-    public TCPBlockingClient(int port, String host, MessageBlockingHandler messageHandler){
+    public SocketBlockingClient(int port, String host, MessageBlockingHandler messageHandler){
         this.port = port;
         this.host = host;
         this.handler = messageHandler;
     }
 
+    @Override
     public Response sendMessage(String message) throws IOException {
         try (Socket socket = new Socket(host, port);
              BufferedOutputStream outStream = new BufferedOutputStream(socket.getOutputStream());

@@ -42,7 +42,7 @@ public class ProcessorControllerImpl implements ProcessorController {
         }
         StorageProcessor processor = storageProcessors.get(operation);
         if (processor == null) {
-            channel.writeAndFlush(channel.writeAndFlush(CacheResponse.create(MessageCode.UNSUPPORTED_OPERATION)))
+            channel.writeAndFlush((CacheResponse.create(MessageCode.UNSUPPORTED_OPERATION)))
                     .addListener(ChannelFutureListener.CLOSE);
         } else {
             executeProcessorOperation(processor, message, channel).addListener(ChannelFutureListener.CLOSE);
