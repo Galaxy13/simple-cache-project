@@ -7,8 +7,8 @@ import java.util.Optional;
 
 public class Response {
     private final MessageCode code;
-    private String valueType;
-    private String value;
+    private final String value;
+    private final String key;
 
     private Response(Map<String, String> message) throws IllegalArgumentException {
         String code = message.get("code");
@@ -19,10 +19,8 @@ public class Response {
         if (this.code == null) {
             throw new IllegalArgumentException("Unsupported response code: " + code);
         }
-        if (this.code.equals(MessageCode.OK)) {
-            this.valueType = message.get("value_type");
-            this.value = message.get("value");
-        }
+        this.value = message.get("value");
+        this.key = message.get("key");
     }
 
     public static Response readFromMsg(Map<String, String> message) throws IllegalArgumentException {
@@ -37,8 +35,21 @@ public class Response {
         return Optional.ofNullable(value);
     }
 
+    public Optional<String> getKey() {
+        return Optional.ofNullable(key);
+    }
+
     @Override
     public String toString() {
-        return "code: " + code + ";value_type: " + valueType + ";value: " + value + ";";
+        StringBuilder builder = new StringBuilder();
+        builder.append("code: ").append(code);
+        if(value != null) {
+            builder.append(", value: ").append(value);
+        }
+        if(key != null) {
+            builder.append(", key: ").append(key);
+        }
+
+        return builder.toString();
     }
 }

@@ -9,18 +9,18 @@ public class ClientTest {
 
     public static void main(String[] args) throws InterruptedException {
         var storage = AsyncStorageClient.start(8081, "localhost");
-//        storage.put("key1", "value1")
-//                    .onResponse(response -> {
-//                        if(response.getValue().isPresent()){
-//                            logger.info("PUT");
-//                        }
-//                    })
-//                    .execute();
+        storage.put("key1", "value1234")
+                    .onResponse(response -> {
+                        if(response.getValue().isPresent()){
+                            logger.info("PUT");
+                        }
+                    })
+                    .execute();
 
         Thread.sleep(100);
 
-        storage.subscribeOn("key1")
-                        .onResponse(response -> logger.info("Subscribe answer OK. Value: {}", response.toString()))
-                .execute();
+//        storage.subscribeOn("key1")
+//                        .onResponse(response -> logger.info("Subscribe answer OK. Value: {}", response.toString()))
+//                .execute();
     }
 }

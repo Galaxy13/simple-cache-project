@@ -42,7 +42,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<Response> {
         Future<?> future = executor.submit(() -> responseAction.action(response));
         pendingFutures.add(future);
         pendingRequests.arriveAndDeregister();
-        if (response.getCode() != MessageCode.SUBSCRIPTION_RESPONSE || response.getCode() != MessageCode.SUBSCRIPTION_SUCCESS){
+        if (!response.getCode().equals(MessageCode.SUBSCRIPTION_RESPONSE) && !response.getCode().equals(MessageCode.SUBSCRIPTION_SUCCESS)){
             ctx.channel().close().addListener(f -> {
                 if (f.isSuccess()) {
                     logger.trace("Channel {} closed", ctx.channel().id().asLongText());

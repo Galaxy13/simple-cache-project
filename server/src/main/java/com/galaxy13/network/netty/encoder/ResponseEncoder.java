@@ -8,6 +8,8 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.MessageToByteEncoder;
 
+import java.nio.charset.StandardCharsets;
+
 public class ResponseEncoder extends MessageToByteEncoder<Response<Value>> {
 
     private final MessageCreator creator;
@@ -20,12 +22,14 @@ public class ResponseEncoder extends MessageToByteEncoder<Response<Value>> {
     protected void encode(ChannelHandlerContext ctx, Response<Value> msg, ByteBuf out){
         MessageCode code = msg.messageCode();
         Value value = msg.value();
-        String createdMessage;
-        if (value == null) {
-            createdMessage = creator.createResponse(code);
-        } else {
-            createdMessage = creator.createResponse(code, value);
+        String key = msg.key();
+        MessageCreator.MessageBuilder builder = creator.builder(code);
+        if (value != null) {
+            builder.setValue(value);
         }
-        out.writeBytes(createdMessage.getBytes());
+        if (key != null) {
+            builder.setKey(key);
+        }
+        out.writeBytes(builder.build().getBytes(StandardCharsets.UTF_8));
     }
 }
