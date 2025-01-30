@@ -20,6 +20,7 @@ public class MessageCreatorImpl implements MessageCreator {
 
     @Override
     public String createRequest(Operation operation, Map<String, String> headers) throws IllegalArgumentException {
+        logger.trace("Creating request message for operation {}", operation);
         String key = headers.get("key");
         if (key == null) {
             throw new IllegalArgumentException("Message format exception. Key can't be null for operation: " + operation);

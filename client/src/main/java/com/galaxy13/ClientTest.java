@@ -19,8 +19,8 @@ public class ClientTest {
 
         Thread.sleep(100);
 
-//        storage.subscribeOn("key1")
-//                        .onResponse(response -> logger.info("Subscribe answer OK. Value: {}", response.toString()))
-//                .execute();
+        storage.subscribeOn("key1")
+                        .onResponse(response -> logger.info("Subscribe answer OK. Value: {}", response.toString()))
+                .execute();
     }
 }

@@ -16,6 +16,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicReference;
 
+@SuppressWarnings({"deprecation", "unused"})
 public class NettyBlockingClient implements BlockingClient {
     private static final Logger logger = LoggerFactory.getLogger(NettyBlockingClient.class);
 
