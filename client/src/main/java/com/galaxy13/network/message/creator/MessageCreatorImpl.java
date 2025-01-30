@@ -1,6 +1,6 @@
 package com.galaxy13.network.message.creator;
 
-import com.galaxy13.storage.Operation;
+import com.galaxy13.network.message.Operation;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

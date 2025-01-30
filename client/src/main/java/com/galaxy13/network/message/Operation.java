@@ -1,4 +1,4 @@
-package com.galaxy13.storage;
+package com.galaxy13.network.message;
 
 public enum Operation {
     GET,

@@ -1,21 +1,19 @@
 package com.galaxy13.processor.storage;
 
-import com.galaxy13.network.message.creator.MessageCreator;
+import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.storage.Storage;
 import com.galaxy13.storage.Value;
-import io.netty.channel.Channel;
 
-import java.util.Map;
 import java.util.Optional;
 
 public class GetProcessor extends AbstractStorageProcessor implements StorageProcessor {
-    public GetProcessor(Storage storage, MessageCreator creator) {
-        super(storage, creator);
+    public GetProcessor(Storage storage) {
+        super(storage);
     }
 
     @Override
-    public Optional<Value> process(Channel channel,  Map<String, String> fields) {
-        String key = fields.get("key");
+    public Optional<Value> process(CacheMessage message) {
+        String key = message.getParameter("key");
         if (key != null) {
             Optional<Value> value = storage.get(key);
             if (value.isPresent()) {
@@ -30,6 +28,6 @@ public class GetProcessor extends AbstractStorageProcessor implements StoragePro
 
     @Override
     public boolean isModifying() {
-        return true;
+        return false;
     }
 }

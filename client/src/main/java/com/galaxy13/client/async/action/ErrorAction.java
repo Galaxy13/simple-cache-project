@@ -1,4 +1,4 @@
-package com.galaxy13.storage.action;
+package com.galaxy13.client.async.action;
 
 public interface ErrorAction {
     void execute(Exception e);
