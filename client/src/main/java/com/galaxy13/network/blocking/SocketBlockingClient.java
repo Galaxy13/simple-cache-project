@@ -23,7 +23,7 @@ public class SocketBlockingClient implements BlockingClient {
     }
 
     @Override
-    public Response sendMessage(String message) throws IOException {
+    public Response sendMessage(String message) {
         try (Socket socket = new Socket(host, port);
              BufferedOutputStream outStream = new BufferedOutputStream(socket.getOutputStream());
              BufferedInputStream inStream = new BufferedInputStream(socket.getInputStream())) {

@@ -7,7 +7,7 @@ import com.galaxy13.storage.Value;
 import java.util.Optional;
 
 public class PutProcessor extends AbstractStorageProcessor implements StorageProcessor {
-    public PutProcessor(Storage storage) {
+    public PutProcessor(Storage<String> storage) {
         super(storage);
     }
 

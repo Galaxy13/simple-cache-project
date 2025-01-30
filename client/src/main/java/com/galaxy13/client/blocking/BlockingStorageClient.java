@@ -14,6 +14,7 @@ import org.slf4j.LoggerFactory;
 
 import java.util.Map;
 
+@SuppressWarnings({"unused"})
 public class BlockingStorageClient {
     private static final Logger logger = LoggerFactory.getLogger(BlockingStorageClient.class);
 

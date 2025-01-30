@@ -25,7 +25,7 @@ public class ProcessorControllerImpl implements ProcessorController {
     private final SubscriptionHandler subscriptionHandler;
 
 
-    public ProcessorControllerImpl(Storage storage) {
+    public ProcessorControllerImpl(Storage<String> storage) {
         this.subscriptionHandler = new SubscriptionHandlerImpl();
         this.storageProcessors = new HashMap<>(){{
             put(Operation.GET, new GetProcessor(storage));
