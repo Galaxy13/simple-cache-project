@@ -1,18 +1,19 @@
 package com.galaxy13.network.netty;
 
 import com.galaxy13.network.message.creator.MessageCreator;
+import com.galaxy13.network.message.request.CacheMessage;
+import com.galaxy13.network.netty.auth.AuthHandler;
 import com.galaxy13.network.netty.decoder.CacheMessageDecoder;
 import com.galaxy13.network.netty.encoder.ResponseEncoder;
 import com.galaxy13.network.netty.handler.SimpleTCPChannelHandler;
 import com.galaxy13.processor.ProcessorController;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.ByteToMessageDecoder;
+import io.netty.handler.codec.MessageToByteEncoder;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -47,6 +48,7 @@ public class NettyServer implements StorageServer {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline().addLast(new CacheMessageDecoder());
+                            socketChannel.pipeline().addLast(new AuthHandler());
                             socketChannel.pipeline().addLast(new ResponseEncoder(messageCreator));
                             socketChannel.pipeline().addLast(new SimpleTCPChannelHandler(processorController));
                         }

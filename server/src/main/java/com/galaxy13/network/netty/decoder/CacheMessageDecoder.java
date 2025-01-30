@@ -5,6 +5,7 @@ import com.galaxy13.network.message.Operation;
 import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.network.message.response.CacheResponse;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.CorruptedFrameException;
@@ -17,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+@ChannelHandler.Sharable
 public class CacheMessageDecoder extends ByteToMessageDecoder {
     private static final Logger logger = LoggerFactory.getLogger(CacheMessageDecoder.class);
 

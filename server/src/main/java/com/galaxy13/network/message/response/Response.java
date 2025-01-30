@@ -9,4 +9,6 @@ public interface Response<V> {
     String key();
 
     V value();
+
+    String token();
 }
