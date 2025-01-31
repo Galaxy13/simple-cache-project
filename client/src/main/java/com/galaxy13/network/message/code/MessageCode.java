@@ -18,10 +18,6 @@ public enum MessageCode {
         this.code = code;
     }
 
-    public String getCode() {
-        return code;
-    }
-
     public static MessageCode fromString(String code) {
         for (MessageCode msgCode : MessageCode.values()) {
             if (msgCode.code.equals(code)) {

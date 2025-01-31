@@ -15,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@SuppressWarnings("unused")
 public class AsyncStorageClient{
     private static final Logger logger = LoggerFactory.getLogger(AsyncStorageClient.class);
 
