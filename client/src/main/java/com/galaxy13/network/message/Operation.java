@@ -4,4 +4,5 @@ public enum Operation {
     GET,
     PUT,
     SUBSCRIBE,
+    AUTHENTICATE,
 }

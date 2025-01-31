@@ -21,6 +21,7 @@ public class MessageCreator {
         private final MessageCode code;
         private Value value;
         private String key;
+        private String token;
 
         public MessageBuilder(MessageCode code) {
             this.code = code;
@@ -34,6 +35,10 @@ public class MessageCreator {
             this.key = key;
         }
 
+        public void setToken(String token) {
+            this.token = token;
+        }
+
         public String build() {
             StringBuilder result = new StringBuilder();
             result.append(createFieldValue("code", code.code()));
@@ -42,6 +47,9 @@ public class MessageCreator {
             }
             if(key != null) {
                 result.append(createFieldValue("key", key));
+            }
+            if (token != null) {
+                result.append(createFieldValue("token", token));
             }
             return result.toString();
         }

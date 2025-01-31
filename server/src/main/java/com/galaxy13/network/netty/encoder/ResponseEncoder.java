@@ -23,13 +23,11 @@ public class ResponseEncoder extends MessageToByteEncoder<Response<Value>> {
         MessageCode code = msg.messageCode();
         Value value = msg.value();
         String key = msg.key();
+        String token = msg.token();
         MessageCreator.MessageBuilder builder = creator.builder(code);
-        if (value != null) {
-            builder.setValue(value);
-        }
-        if (key != null) {
-            builder.setKey(key);
-        }
+        builder.setValue(value);
+        builder.setKey(key);
+        builder.setToken(token);
         out.writeBytes(builder.build().getBytes(StandardCharsets.UTF_8));
     }
 }

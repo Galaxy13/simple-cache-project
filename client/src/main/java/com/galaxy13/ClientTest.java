@@ -11,9 +11,7 @@ public class ClientTest {
         var storage = AsyncStorageClient.start(8081, "localhost");
         storage.put("key1", "value1234")
                     .onResponse(response -> {
-                        if(response.getValue().isPresent()){
-                            logger.info("PUT");
-                        }
+                        logger.info(response.getParameter("value"));
                     })
                     .execute();
 

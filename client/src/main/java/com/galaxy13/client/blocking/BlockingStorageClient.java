@@ -39,8 +39,8 @@ public class BlockingStorageClient {
     private String handleResponse(String msg) {
         try {
             Response response = blockingClient.sendMessage(msg);
-            if (response.getCode().equals(MessageCode.OK) && response.getValue().isPresent()){
-                return response.getValue().get();
+            if (response.getCode().equals(MessageCode.OK)){
+                return response.getParameter("value");
             } else {
                 return null;
             }

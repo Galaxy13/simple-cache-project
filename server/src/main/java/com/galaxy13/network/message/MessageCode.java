@@ -9,7 +9,8 @@ public enum MessageCode {
     UNSUPPORTED_OPERATION("302"),
     FORMAT_EXCEPTION("303"),
     SUBSCRIPTION_ERROR("304"),
-    AUTHENTICATION_FAILURE("305"),;
+    AUTHENTICATION_FAILURE("305"),
+    INVALID_TOKEN("306"),;
 
     private final String label;
 

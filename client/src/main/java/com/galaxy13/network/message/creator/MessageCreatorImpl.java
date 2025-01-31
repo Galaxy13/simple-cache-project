@@ -5,7 +5,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
-import java.util.StringJoiner;
 
 public class MessageCreatorImpl implements MessageCreator {
     private static final Logger logger = LoggerFactory.getLogger(MessageCreatorImpl.class);
@@ -19,35 +18,18 @@ public class MessageCreatorImpl implements MessageCreator {
     }
 
     @Override
-    public String createRequest(Operation operation, Map<String, String> headers) throws IllegalArgumentException {
+    public String createRequest(Operation operation, Map<String, String> headers){
         logger.trace("Creating request message for operation {}", operation);
-        String key = headers.get("key");
-        if (key == null) {
-            throw new IllegalArgumentException("Message format exception. Key can't be null for operation: " + operation);
+        StringBuilder builder = new StringBuilder();
+        builder.append(formField("op", operation.name()));
+        for (Map.Entry<String, String> entry : headers.entrySet()) {
+            builder.append(formField(entry.getKey(), entry.getValue()));
         }
-        StringJoiner joiner = createBasicMessage(operation, key);
-        if (operation.equals(Operation.PUT)){
-            String value = headers.get("value");
-            if (value != null) {
-                return put(joiner, value);
-            }
-            throw new IllegalArgumentException("Message format exception. Value can't be null for operation: " + operation);
-        }
-        return joiner + headerDelimiter;
-    }
-
-    private StringJoiner createBasicMessage(Operation operation, String key) {
-        StringJoiner sj = new StringJoiner(this.headerDelimiter);
-        sj.add(formField("op", operation.toString()));
-        sj.add(formField("key", key));
-        return sj;
+        return builder.toString();
     }
 
     private String formField(String field, String value) {
-        return field + equalSign + value;
+        return field + equalSign + value + headerDelimiter;
     }
 
-    private String put(StringJoiner joiner, String value) {
-        return joiner.add(formField("value", value)) + headerDelimiter;
-    }
 }
