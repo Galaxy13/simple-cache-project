@@ -22,7 +22,7 @@ public class AuthHandler extends ChannelDuplexHandler {
     private final MessageCreator messageCreator;
     private final Credentials credentials;
     private final Queue<QueuedMessage> queue;
-    private AtomicBoolean waitingForAuth;
+    private final AtomicBoolean waitingForAuth;
 
     public AuthHandler(Credentials credentials, MessageCreator messageCreator) {
         this.credentials = credentials;
@@ -31,21 +31,12 @@ public class AuthHandler extends ChannelDuplexHandler {
         this.waitingForAuth = new AtomicBoolean(false);
     }
 
-    private class QueuedMessage {
-        final ChannelHandlerContext ctx;
-        final Object msg;
-        final ChannelPromise promise;
+    private record QueuedMessage(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
 
-        public QueuedMessage(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-            this.ctx = ctx;
-            this.msg = msg;
-            this.promise = promise;
+        public void sendMessage() {
+                ctx.channel().writeAndFlush(msg, promise);
+            }
         }
-
-        public void sendMessage(){
-            ctx.channel().writeAndFlush(msg, promise);
-        }
-    }
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {

@@ -3,7 +3,6 @@ package com.galaxy13.network.message;
 import com.galaxy13.network.message.code.MessageCode;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class Response {
     private final MessageCode code;

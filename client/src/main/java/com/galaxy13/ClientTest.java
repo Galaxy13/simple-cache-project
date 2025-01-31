@@ -10,9 +10,7 @@ public class ClientTest {
     public static void main(String[] args) throws InterruptedException {
         var storage = AsyncStorageClient.start(8081, "localhost");
         storage.put("key1", "value1234")
-                    .onResponse(response -> {
-                        logger.info(response.getParameter("value"));
-                    })
+                    .onResponse(response -> logger.info(response.getParameter("value")))
                     .execute();
 
         Thread.sleep(100);

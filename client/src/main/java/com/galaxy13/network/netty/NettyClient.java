@@ -37,8 +37,6 @@ public class NettyClient implements NetworkStorageClient{
     private final Credentials credentials;
     private final MessageCreator messageCreator;
 
-    private String token;
-
     public NettyClient(int port,
                        String host,
                        ExecutorService executor,
