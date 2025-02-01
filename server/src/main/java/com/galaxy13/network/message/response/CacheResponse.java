@@ -1,44 +1,54 @@
 package com.galaxy13.network.message.response;
 
 import com.galaxy13.network.message.MessageCode;
-import com.galaxy13.storage.Value;
 
-public class CacheResponse implements Response<Value> {
+import java.util.HashMap;
+import java.util.Map;
+
+@SuppressWarnings({"unused"})
+public class CacheResponse implements Response<String, String> {
     private final MessageCode code;
-    private Value value;
-    private String key;
-    private String token;
+    private Map<String, String> parameters;
 
-    public CacheResponse(final MessageCode code) {
+    private CacheResponse(final MessageCode code) {
         this.code = code;
     }
 
-    public CacheResponse(final MessageCode code, final Value value) {
+    private CacheResponse(final MessageCode code, final Map<String, String> parameters) {
         this.code = code;
-        this.value = value;
-    }
-
-    public CacheResponse(final MessageCode code, final String key, final Value value) {
-        this.code = code;
-        this.value = value;
-        this.key = key;
-    }
-
-    private CacheResponse(final MessageCode code, final String token) {
-        this.code = code;
-        this.token = token;
+        this.parameters = parameters;
     }
 
     public static CacheResponse create(final MessageCode code) {
         return new CacheResponse(code);
     }
 
-    public static CacheResponse createWithValue(final MessageCode code, final Value value) {
-        return new CacheResponse(code, value);
+    public static CacheResponse createWithParams(final MessageCode code, Map<String, String> parameters) {
+        return new CacheResponse(code, parameters);
     }
 
-    public static CacheResponse createAuthResponse(final MessageCode code, final String token) {
-        return new CacheResponse(code, token);
+    public static CacheResponse createFrom(final MessageCode code, String key1, String value1) {
+        Map<String, String> parameters = new HashMap<>() {{
+            put(key1, value1);
+        }};
+        return new CacheResponse(code, parameters);
+    }
+
+    public static CacheResponse createFrom(final MessageCode code, String key1, String value1, String key2, String value2) {
+        Map<String, String> parameters = new HashMap<>() {{
+            put(key1, value1);
+            put(key2, value2);
+        }};
+        return new CacheResponse(code, parameters);
+    }
+
+    public static CacheResponse createFrom(final MessageCode code, String key1, String value1, String key2, String value2, String key3, String value3) {
+        Map<String, String> parameters = new HashMap<>() {{
+            put(key1, value1);
+            put(key2, value2);
+            put(key3, value3);
+        }};
+        return new CacheResponse(code, parameters);
     }
 
     @Override
@@ -47,17 +57,12 @@ public class CacheResponse implements Response<Value> {
     }
 
     @Override
-    public Value value() {
-        return value;
+    public String getParameter(String name) {
+        return parameters.get(name);
     }
 
     @Override
-    public String token() {
-        return token;
-    }
-
-    @Override
-    public String key() {
-        return key;
+    public Map<String, String> getParameters() {
+        return parameters;
     }
 }

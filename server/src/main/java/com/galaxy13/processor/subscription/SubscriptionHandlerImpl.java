@@ -1,9 +1,8 @@
 package com.galaxy13.processor.subscription;
 
-import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.network.message.MessageCode;
+import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.network.message.response.CacheResponse;
-import com.galaxy13.network.message.response.Response;
 import com.galaxy13.storage.Value;
 import io.netty.channel.Channel;
 import org.slf4j.Logger;
@@ -41,7 +40,9 @@ public class SubscriptionHandlerImpl implements SubscriptionHandler {
         logger.trace("Subscription handling value {} for key {}", value, key);
         List<Channel> subscriptionChannels = subscriptions.get(key);
         if (subscriptionChannels != null) {
-            Response<Value> response = new CacheResponse(MessageCode.SUBSCRIPTION_RESPONSE, key, value);
+            var response = CacheResponse.createFrom(MessageCode.SUBSCRIPTION_RESPONSE,
+                    "key", key,
+                    "value", value.value());
             subscriptionChannels.forEach(channel ->
                     {
                         channel.writeAndFlush(response);

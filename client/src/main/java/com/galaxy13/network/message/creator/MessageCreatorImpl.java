@@ -31,5 +31,4 @@ public class MessageCreatorImpl implements MessageCreator {
     private String formField(String field, String value) {
         return field + equalSign + value + headerDelimiter;
     }
-
 }

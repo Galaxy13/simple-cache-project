@@ -4,8 +4,6 @@ import com.galaxy13.network.message.MessageCode;
 import com.galaxy13.network.message.Operation;
 import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.network.message.response.CacheResponse;
-import com.galaxy13.network.message.response.Response;
-import com.galaxy13.storage.Value;
 import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
@@ -63,7 +61,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<CacheMessage> {
             logger.trace("Authentication failed for {} with password: {}", login, password);
             responseCode = MessageCode.AUTHENTICATION_FAILURE;
         }
-        Response<Value> response = CacheResponse.createAuthResponse(responseCode, token);
+        var response = CacheResponse.createFrom(responseCode, "token", token);
         ctx.writeAndFlush(response);
     }
 
@@ -75,7 +73,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<CacheMessage> {
             ctx.fireChannelRead(msg);
         } else {
             logger.trace("Token check failed for {} with token: {}", ctx.channel().remoteAddress(), token);
-            Response<Value> response = CacheResponse.createAuthResponse(MessageCode.INVALID_TOKEN, null);
+            var response = CacheResponse.create(MessageCode.INVALID_TOKEN);
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         }
     }
