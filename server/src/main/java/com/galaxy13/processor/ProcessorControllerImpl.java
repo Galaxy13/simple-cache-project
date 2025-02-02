@@ -15,22 +15,20 @@ import io.netty.channel.Channel;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelFutureListener;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.EnumMap;
 import java.util.Optional;
 
 public class ProcessorControllerImpl implements ProcessorController {
 
-    private final Map<Operation, StorageProcessor> storageProcessors;
+    private final EnumMap<Operation, StorageProcessor> storageProcessors;
     private final SubscriptionHandler subscriptionHandler;
 
 
-    public ProcessorControllerImpl(Storage<String> storage) {
+    public ProcessorControllerImpl(Storage<String, Value> storage) {
         this.subscriptionHandler = new SubscriptionHandlerImpl();
-        this.storageProcessors = new HashMap<>(){{
-            put(Operation.GET, new GetProcessor(storage));
-            put(Operation.PUT, new PutProcessor(storage));
-        }};
+        this.storageProcessors = new EnumMap<>(Operation.class);
+        this.storageProcessors.put(Operation.GET, new GetProcessor(storage));
+        this.storageProcessors.put(Operation.PUT, new PutProcessor(storage));
     }
 
     @Override

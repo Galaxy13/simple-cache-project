@@ -47,9 +47,9 @@ public class AuthHandler extends SimpleChannelInboundHandler<CacheMessage> {
     }
 
     private void handleAuthorization(ChannelHandlerContext ctx, CacheMessage msg) {
-        logger.trace("Authorization handling started for message: {}", msg.toString());
         String login = msg.getParameter("login");
         String password = msg.getParameter("password");
+        logger.trace("Authorization handling started for message: {}", msg);
         MessageCode responseCode;
         String token = "";
         if (credentials.checkCredentials(login, password)) {
@@ -66,7 +66,6 @@ public class AuthHandler extends SimpleChannelInboundHandler<CacheMessage> {
     }
 
     private void handleTokenCheck(ChannelHandlerContext ctx, CacheMessage msg) {
-        logger.trace("Token check handling started for message: {}", msg.toString());
         String token = msg.getParameter("token");
         if (token != null && credentials.containsToken(token)) {
             logger.trace("Token check successful for {} with token: {}", ctx.channel().remoteAddress(), token);

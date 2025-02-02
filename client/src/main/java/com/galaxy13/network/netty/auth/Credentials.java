@@ -29,4 +29,9 @@ public class Credentials {
     public boolean containsToken() {
         return token != null;
     }
+
+    @Override
+    public String toString() {
+        return "Credentials [login=" + login + ", password=" + password + ", token=" + token + "]";
+    }
 }

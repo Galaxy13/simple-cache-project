@@ -5,6 +5,7 @@ import com.galaxy13.client.blocking.BlockingStorageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+@SuppressWarnings("all")
 public class ClientTest {
     private static final Logger logger = LoggerFactory.getLogger(ClientTest.class);
 
@@ -17,7 +18,7 @@ public class ClientTest {
         Thread.sleep(100);
 
         storage.subscribeOn("key1")
-                        .onResponse(response -> logger.info("Subscribe answer OK. Value: {}", response.toString()))
+                .onResponse(response -> logger.info("Subscribe answer OK. Value: {}", response))
                 .execute();
 
         var blockingStorage = new BlockingStorageClient(8081, "localhost", "user", "pwd");

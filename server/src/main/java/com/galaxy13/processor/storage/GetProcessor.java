@@ -7,7 +7,7 @@ import com.galaxy13.storage.Value;
 import java.util.Optional;
 
 public class GetProcessor extends AbstractStorageProcessor implements StorageProcessor {
-    public GetProcessor(Storage<String> storage) {
+    public GetProcessor(Storage<String, Value> storage) {
         super(storage);
     }
 

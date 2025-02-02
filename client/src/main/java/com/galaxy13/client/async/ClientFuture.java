@@ -1,8 +1,8 @@
 package com.galaxy13.client.async;
 
-import com.galaxy13.network.NetworkStorageClient;
 import com.galaxy13.client.async.action.ErrorAction;
 import com.galaxy13.client.async.action.ResponseAction;
+import com.galaxy13.network.NetworkStorageClient;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,7 +13,7 @@ public class ClientFuture{
     private final NetworkStorageClient networkClient;
 
     private ResponseAction responseAction;
-    private ErrorAction errorAction = (e) -> logger.error("Error occurred while executing future", e);
+    private ErrorAction errorAction = e -> logger.error("Error occurred while executing future", e);
     private boolean isErrorActionDefault = true;
     private ClientFuture childFuture;
 
@@ -57,6 +57,7 @@ public class ClientFuture{
             networkClient.sendMessage(message, responseAction, errorAction);
         } catch (InterruptedException e) {
             logger.warn("Interrupted while sending message", e);
+            Thread.currentThread().interrupt();
         }
     }
 }

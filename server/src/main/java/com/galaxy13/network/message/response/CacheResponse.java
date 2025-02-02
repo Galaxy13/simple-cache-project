@@ -2,7 +2,6 @@ package com.galaxy13.network.message.response;
 
 import com.galaxy13.network.message.MessageCode;
 
-import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings({"unused"})
@@ -28,26 +27,17 @@ public class CacheResponse implements Response<String, String> {
     }
 
     public static CacheResponse createFrom(final MessageCode code, String key1, String value1) {
-        Map<String, String> parameters = new HashMap<>() {{
-            put(key1, value1);
-        }};
+        Map<String, String> parameters = Map.of(key1, value1);
         return new CacheResponse(code, parameters);
     }
 
     public static CacheResponse createFrom(final MessageCode code, String key1, String value1, String key2, String value2) {
-        Map<String, String> parameters = new HashMap<>() {{
-            put(key1, value1);
-            put(key2, value2);
-        }};
+        Map<String, String> parameters = Map.of(key1, value1, key2, value2);
         return new CacheResponse(code, parameters);
     }
 
     public static CacheResponse createFrom(final MessageCode code, String key1, String value1, String key2, String value2, String key3, String value3) {
-        Map<String, String> parameters = new HashMap<>() {{
-            put(key1, value1);
-            put(key2, value2);
-            put(key3, value3);
-        }};
+        Map<String, String> parameters = Map.of(key1, value1, key2, value2, key3, value3);
         return new CacheResponse(code, parameters);
     }
 

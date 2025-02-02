@@ -4,6 +4,7 @@ import com.galaxy13.client.async.action.ErrorAction;
 import com.galaxy13.client.async.action.ResponseAction;
 import com.galaxy13.network.message.Response;
 import com.galaxy13.network.message.code.MessageCode;
+import io.netty.channel.ChannelException;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -45,7 +46,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<Response> {
                 if (f.isSuccess()) {
                     logger.trace("Channel {} closed", ctx.channel().id().asLongText());
                 } else {
-                    throw new RuntimeException(f.cause());
+                    throw new ChannelException(f.cause());
                 }
             });
         }

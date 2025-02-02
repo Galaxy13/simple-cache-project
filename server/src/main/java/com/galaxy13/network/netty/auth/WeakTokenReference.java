@@ -12,8 +12,7 @@ public class WeakTokenReference extends WeakReference<String> {
     public boolean equals(Object obj) {
         if (this == obj) return true;
         if (obj == null) return false;
-        if (obj instanceof WeakTokenReference) {
-            WeakReference<String> other = (WeakTokenReference) obj;
+        if (obj instanceof WeakTokenReference other) {
             return Objects.equals(this.get(), other.get());
         }
         return false;

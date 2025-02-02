@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class LRUStorage<K> implements Storage<K> {
+public class LRUStorage<K> implements Storage<K, Value> {
 
     private final ConcurrentMap<K, Node> storage;
     private final DoublyLinkedList deque;

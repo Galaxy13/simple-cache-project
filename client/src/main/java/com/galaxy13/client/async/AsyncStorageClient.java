@@ -1,12 +1,12 @@
 package com.galaxy13.client.async;
 
+import com.galaxy13.client.async.action.ResourceSupplier;
+import com.galaxy13.network.NetworkStorageClient;
+import com.galaxy13.network.message.Operation;
+import com.galaxy13.network.message.code.MessageCode;
 import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.network.message.creator.MessageCreatorImpl;
 import com.galaxy13.network.netty.NettyClient;
-import com.galaxy13.network.NetworkStorageClient;
-import com.galaxy13.network.message.code.MessageCode;
-import com.galaxy13.network.message.Operation;
-import com.galaxy13.client.async.action.ResourceSupplier;
 import com.galaxy13.network.netty.auth.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -48,8 +48,8 @@ public class AsyncStorageClient{
 
     public void shutdown() {
         try {
-            if (networkStorageClient instanceof NettyClient) {
-                ((NettyClient) networkStorageClient).shutdown();
+            if (networkStorageClient instanceof NettyClient nettyClient) {
+                nettyClient.shutdown();
             }
         } catch (Exception e) {
             logger.error("Error closing network storage", e);

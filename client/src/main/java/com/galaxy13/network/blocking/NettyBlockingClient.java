@@ -39,7 +39,7 @@ public class NettyBlockingClient implements BlockingClient {
     }
 
     @Override
-    public Response sendMessage(String message) throws Exception {
+    public Response sendMessage(String message) throws InterruptedException {
         AtomicReference<Response> responseRef = new AtomicReference<>();
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -93,7 +93,7 @@ public class NettyBlockingClient implements BlockingClient {
             });
 
             if (!latch.await(10, TimeUnit.SECONDS)){
-                throw new RuntimeException("OIO channel timeout");
+                throw new ChannelException("OIO channel timeout");
             }
             return responseRef.get();
         } finally {
