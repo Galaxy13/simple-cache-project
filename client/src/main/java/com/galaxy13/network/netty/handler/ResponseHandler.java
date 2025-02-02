@@ -1,10 +1,9 @@
 package com.galaxy13.network.netty.handler;
 
-import com.galaxy13.network.message.Response;
 import com.galaxy13.client.async.action.ErrorAction;
 import com.galaxy13.client.async.action.ResponseAction;
+import com.galaxy13.network.message.Response;
 import com.galaxy13.network.message.code.MessageCode;
-import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import org.slf4j.Logger;
@@ -15,7 +14,6 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
 
-@ChannelHandler.Sharable
 public class ResponseHandler extends SimpleChannelInboundHandler<Response> {
     private static final Logger logger = LoggerFactory.getLogger(ResponseHandler.class);
 
@@ -62,7 +60,7 @@ public class ResponseHandler extends SimpleChannelInboundHandler<Response> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) {
         logger.error("Exception caught", cause);
-        errorAction.execute((Exception) cause);
+        errorAction.execute(cause);
         pendingRequests.arriveAndDeregister();
     }
 }

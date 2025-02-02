@@ -1,14 +1,14 @@
 package com.galaxy13.processor;
 
-import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.network.message.MessageCode;
 import com.galaxy13.network.message.Operation;
+import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.network.message.response.CacheResponse;
+import com.galaxy13.processor.storage.GetProcessor;
+import com.galaxy13.processor.storage.PutProcessor;
+import com.galaxy13.processor.storage.StorageProcessor;
 import com.galaxy13.processor.subscription.SubscriptionHandler;
 import com.galaxy13.processor.subscription.SubscriptionHandlerImpl;
-import com.galaxy13.processor.storage.GetProcessor;
-import com.galaxy13.processor.storage.StorageProcessor;
-import com.galaxy13.processor.storage.PutProcessor;
 import com.galaxy13.storage.Storage;
 import com.galaxy13.storage.Value;
 import io.netty.channel.Channel;
@@ -57,7 +57,7 @@ public class ProcessorControllerImpl implements ProcessorController {
                 String key = message.getParameter("key");
                 this.subscriptionHandler.handleModification(value, key);
             }
-            return channel.writeAndFlush(CacheResponse.createWithValue(MessageCode.OK, value));
+            return channel.writeAndFlush(CacheResponse.createFrom(MessageCode.OK, "value", value.value()));
         } else {
             return channel.writeAndFlush(CacheResponse.create(MessageCode.NOT_PRESENT));
         }

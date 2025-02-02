@@ -3,15 +3,13 @@ package com.galaxy13.network.message;
 import com.galaxy13.network.message.code.MessageCode;
 
 import java.util.Map;
-import java.util.Optional;
 
 public class Response {
     private final MessageCode code;
-    private final String value;
-    private final String key;
+    private final Map<String, String> parameters;
 
-    private Response(Map<String, String> message) throws IllegalArgumentException {
-        String code = message.get("code");
+    private Response(Map<String, String> parameters) throws IllegalArgumentException {
+        String code = parameters.get("code");
         if (code == null) {
             throw new IllegalArgumentException("Message does not contain response code");
         }
@@ -19,8 +17,7 @@ public class Response {
         if (this.code == null) {
             throw new IllegalArgumentException("Unsupported response code: " + code);
         }
-        this.value = message.get("value");
-        this.key = message.get("key");
+        this.parameters = parameters;
     }
 
     public static Response readFromMsg(Map<String, String> message) throws IllegalArgumentException {
@@ -31,25 +28,17 @@ public class Response {
         return code;
     }
 
-    public Optional<String> getValue() {
-        return Optional.ofNullable(value);
-    }
-
-    public Optional<String> getKey() {
-        return Optional.ofNullable(key);
+    public String getParameter(String name) {
+        return parameters.get(name);
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
         builder.append("code: ").append(code);
-        if(value != null) {
-            builder.append(", value: ").append(value);
+        for (Map.Entry<String, String> entry : parameters.entrySet()) {
+            builder.append(entry.getKey()).append(":").append(entry.getValue()).append(";");
         }
-        if(key != null) {
-            builder.append(", key: ").append(key);
-        }
-
         return builder.toString();
     }
 }

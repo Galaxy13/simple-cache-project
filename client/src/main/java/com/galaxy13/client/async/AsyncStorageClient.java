@@ -7,6 +7,7 @@ import com.galaxy13.network.NetworkStorageClient;
 import com.galaxy13.network.message.code.MessageCode;
 import com.galaxy13.network.message.Operation;
 import com.galaxy13.client.async.action.ResourceSupplier;
+import com.galaxy13.network.netty.auth.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -14,6 +15,7 @@ import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
+@SuppressWarnings("unused")
 public class AsyncStorageClient{
     private static final Logger logger = LoggerFactory.getLogger(AsyncStorageClient.class);
 
@@ -21,15 +23,23 @@ public class AsyncStorageClient{
     private final MessageCreator messageCreator;
 
     public AsyncStorageClient(int port, String host) {
-        this.networkStorageClient = new NettyClient(port, host, Executors.newCachedThreadPool());
         this.messageCreator = new MessageCreatorImpl(";", ":");
+        this.networkStorageClient = new NettyClient(port,
+                host,
+                Executors.newCachedThreadPool(),
+                new Credentials("user", "pwd"),
+                messageCreator);
         logger.info("Storage client created");
     }
 
     public AsyncStorageClient(int port, String host, ExecutorService executor) {
         logger.info("Storage client created with provided executor: {}", executor);
-        this.networkStorageClient = new NettyClient(port, host, executor);
         this.messageCreator = new MessageCreatorImpl(";", ":");
+        this.networkStorageClient = new NettyClient(port,
+                host,
+                executor,
+                new Credentials("user", "pwd"),
+                messageCreator);
     }
 
     public static AsyncStorageClient start(int port, String host) {

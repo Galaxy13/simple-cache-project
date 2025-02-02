@@ -1,6 +1,8 @@
 package com.galaxy13.network.netty;
 
 import com.galaxy13.network.message.creator.MessageCreator;
+import com.galaxy13.network.netty.auth.AuthHandler;
+import com.galaxy13.network.netty.auth.Credentials;
 import com.galaxy13.network.netty.decoder.CacheMessageDecoder;
 import com.galaxy13.network.netty.encoder.ResponseEncoder;
 import com.galaxy13.network.netty.handler.SimpleTCPChannelHandler;
@@ -23,14 +25,16 @@ public class NettyServer implements StorageServer {
     private final int port;
 
     private final ProcessorController processorController;
-    private final MessageCreator messageCreator;
+    private final MessageCreator<String, String> messageCreator;
+    private final Credentials credentials;
     private EventLoopGroup bossGroup;
     private EventLoopGroup workerGroup;
 
-    public NettyServer(int port, ProcessorController controller, MessageCreator creator) {
+    public NettyServer(int port, ProcessorController controller, MessageCreator<String, String> creator, Credentials credentials) {
         this.port = port;
         this.processorController = controller;
         this.messageCreator = creator;
+        this.credentials = credentials;
     }
 
     @Override
@@ -47,7 +51,8 @@ public class NettyServer implements StorageServer {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) {
                             socketChannel.pipeline().addLast(new CacheMessageDecoder());
-                            socketChannel.pipeline().addLast(new ResponseEncoder(messageCreator));
+                            socketChannel.pipeline().addLast(new ResponseEncoder<>(messageCreator));
+                            socketChannel.pipeline().addLast(new AuthHandler(credentials));
                             socketChannel.pipeline().addLast(new SimpleTCPChannelHandler(processorController));
                         }
                     })

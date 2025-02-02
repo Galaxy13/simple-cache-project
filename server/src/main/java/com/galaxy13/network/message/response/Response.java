@@ -3,10 +3,13 @@ package com.galaxy13.network.message.response;
 
 import com.galaxy13.network.message.MessageCode;
 
-public interface Response<V> {
+import java.util.Map;
+
+@SuppressWarnings({"unused"})
+public interface Response<K, V> {
     MessageCode messageCode();
 
-    String key();
+    V getParameter(K name);
 
-    V value();
+    Map<K, V> getParameters();
 }
