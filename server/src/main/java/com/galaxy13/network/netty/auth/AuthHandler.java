@@ -50,19 +50,16 @@ public class AuthHandler extends SimpleChannelInboundHandler<CacheMessage> {
         String login = msg.getParameter("login");
         String password = msg.getParameter("password");
         logger.trace("Authorization handling started for message: {}", msg);
-        MessageCode responseCode;
-        String token = "";
         if (credentials.checkCredentials(login, password)) {
             logger.trace("Authentication successful for {} with password: {}", login, password);
-            token = generateNewToken();
+            String token = generateNewToken();
             credentials.addToken(token);
-            responseCode = MessageCode.AUTHENTICATION_SUCCESS;
+            ctx.writeAndFlush(CacheResponse.createFrom(MessageCode.AUTHENTICATION_SUCCESS, "token", token));
         } else {
             logger.trace("Authentication failed for {} with password: {}", login, password);
-            responseCode = MessageCode.AUTHENTICATION_FAILURE;
+            ctx.writeAndFlush(CacheResponse.create(MessageCode.AUTHENTICATION_FAILURE))
+                    .addListener(ChannelFutureListener.CLOSE);
         }
-        var response = CacheResponse.createFrom(responseCode, "token", token);
-        ctx.writeAndFlush(response);
     }
 
     private void handleTokenCheck(ChannelHandlerContext ctx, CacheMessage msg) {

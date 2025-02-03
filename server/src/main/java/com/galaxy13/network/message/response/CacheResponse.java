@@ -2,18 +2,20 @@ package com.galaxy13.network.message.response;
 
 import com.galaxy13.network.message.MessageCode;
 
+import java.util.HashMap;
 import java.util.Map;
 
 @SuppressWarnings({"unused"})
 public class CacheResponse implements Response<String, String> {
     private final MessageCode code;
-    private Map<String, String> parameters;
+    private final Map<String, String> parameters;
 
     private CacheResponse(final MessageCode code) {
         if (code == null) {
             throw new IllegalArgumentException("Message code cannot be null");
         }
         this.code = code;
+        this.parameters = new HashMap<>();
     }
 
     private CacheResponse(final MessageCode code, final Map<String, String> parameters) {
