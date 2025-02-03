@@ -6,16 +6,16 @@ import java.util.Optional;
 import java.util.concurrent.ConcurrentHashMap;
 
 @SuppressWarnings("unused")
-public class WeakRefStorage extends AbstractStorage<String, Value> implements Storage<String, Value> {
-    protected Map<String, WeakReference<Value>> weakReferenceMap;
+public class WeakRefStorage<K, V> extends AbstractStorage<K, V> implements Storage<K, V> {
+    protected Map<K, WeakReference<V>> weakReferenceMap;
 
     public WeakRefStorage(int capacity) {
         this.weakReferenceMap = new ConcurrentHashMap<>(capacity);
     }
 
     @Override
-    public Optional<Value> get(String key) {
-        WeakReference<Value> weakReference = weakReferenceMap.get(key);
+    public Optional<V> get(K key) {
+        WeakReference<V> weakReference = weakReferenceMap.get(key);
         if (weakReference != null) {
             if (weakReference.get() != null) {
                 return Optional.ofNullable(weakReference.get());
@@ -27,13 +27,18 @@ public class WeakRefStorage extends AbstractStorage<String, Value> implements St
     }
 
     @Override
-    public Value put(String key, Value value) {
+    public V put(K key, V value) {
         weakReferenceMap.put(key, new WeakReference<>(value));
         return value;
     }
 
     @Override
-    public Optional<Value> remove(String key) {
+    public Optional<V> remove(K key) {
         return Optional.ofNullable(weakReferenceMap.remove(key)).map(WeakReference::get);
+    }
+
+    @Override
+    public int size() {
+        return weakReferenceMap.size();
     }
 }

@@ -9,4 +9,6 @@ public interface Storage<K, V> {
     Optional<V> remove(K key);
 
     V put(K key, V value);
+
+    int size();
 }

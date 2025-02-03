@@ -10,33 +10,39 @@ public class CacheResponse implements Response<String, String> {
     private Map<String, String> parameters;
 
     private CacheResponse(final MessageCode code) {
+        if (code == null) {
+            throw new IllegalArgumentException("Message code cannot be null");
+        }
         this.code = code;
     }
 
     private CacheResponse(final MessageCode code, final Map<String, String> parameters) {
+        if (code == null || parameters == null) {
+            throw new IllegalArgumentException("Message code or parameters cannot be null");
+        }
         this.code = code;
         this.parameters = parameters;
     }
 
-    public static CacheResponse create(final MessageCode code) {
+    public static Response<String, String> create(final MessageCode code) {
         return new CacheResponse(code);
     }
 
-    public static CacheResponse createWithParams(final MessageCode code, Map<String, String> parameters) {
+    public static Response<String, String> createWithParams(final MessageCode code, Map<String, String> parameters) {
         return new CacheResponse(code, parameters);
     }
 
-    public static CacheResponse createFrom(final MessageCode code, String key1, String value1) {
+    public static Response<String, String> createFrom(final MessageCode code, String key1, String value1) {
         Map<String, String> parameters = Map.of(key1, value1);
         return new CacheResponse(code, parameters);
     }
 
-    public static CacheResponse createFrom(final MessageCode code, String key1, String value1, String key2, String value2) {
+    public static Response<String, String> createFrom(final MessageCode code, String key1, String value1, String key2, String value2) {
         Map<String, String> parameters = Map.of(key1, value1, key2, value2);
         return new CacheResponse(code, parameters);
     }
 
-    public static CacheResponse createFrom(final MessageCode code, String key1, String value1, String key2, String value2, String key3, String value3) {
+    public static Response<String, String> createFrom(final MessageCode code, String key1, String value1, String key2, String value2, String key3, String value3) {
         Map<String, String> parameters = Map.of(key1, value1, key2, value2, key3, value3);
         return new CacheResponse(code, parameters);
     }

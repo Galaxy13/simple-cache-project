@@ -21,13 +21,17 @@ public class CacheMessageDecoder extends ByteToMessageDecoder {
     private static final Logger logger = LoggerFactory.getLogger(CacheMessageDecoder.class);
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out){
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
         if (in.readableBytes() > 4) {
             String message = in.toString(in.readerIndex(), in.readableBytes(), StandardCharsets.UTF_8);
             in.readerIndex(in.writerIndex());
             Map<String, String> parameters = getFields(message);
             try {
-                Operation operation = Operation.valueOf(parameters.get("op"));
+                String op = parameters.get("op");
+                if (op == null) {
+                    throw new CorruptedFrameException("No operation parameter in message: " + message);
+                }
+                Operation operation = Operation.valueOf(op);
                 CacheMessage cacheMessage = new CacheMessage() {
                     private final Operation op = operation;
                     private final Map<String, String> params = parameters;

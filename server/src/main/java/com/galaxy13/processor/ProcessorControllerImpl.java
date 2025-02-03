@@ -51,11 +51,11 @@ public class ProcessorControllerImpl implements ProcessorController {
         Optional<Value> result = processor.process(message);
         if (result.isPresent()) {
             Value value = result.get();
+            String key = message.getParameter("key");
             if (processor.isModifying()){
-                String key = message.getParameter("key");
                 this.subscriptionHandler.handleModification(value, key);
             }
-            return channel.writeAndFlush(CacheResponse.createFrom(MessageCode.OK, "value", value.value()));
+            return channel.writeAndFlush(CacheResponse.createFrom(MessageCode.OK, "value", value.value(), "key", key));
         } else {
             return channel.writeAndFlush(CacheResponse.create(MessageCode.NOT_PRESENT));
         }

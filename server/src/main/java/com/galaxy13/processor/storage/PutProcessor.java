@@ -15,7 +15,7 @@ public class PutProcessor extends AbstractStorageProcessor implements StoragePro
     public Optional<Value> process(CacheMessage message) {
         String key = message.getParameter("key");
         String value = message.getParameter("value");
-        if (key != null && value != null) {
+        if ((key != null && value != null) && (!key.isEmpty() && !value.isEmpty())) {
             Value result = storage.put(key, new Value(value));
             return Optional.of(result);
         } else {

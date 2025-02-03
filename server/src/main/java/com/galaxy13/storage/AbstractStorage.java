@@ -21,4 +21,9 @@ public abstract class AbstractStorage<K, V> implements Storage<K, V> {
     public Optional<V> remove(K key) {
         return Optional.ofNullable(storage.remove(key));
     }
+
+    @Override
+    public int size() {
+        return storage.size();
+    }
 }

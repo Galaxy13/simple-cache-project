@@ -11,6 +11,9 @@ public class MessageCreator<K, V> {
     private final String equalSign;
 
     public MessageCreator(String fieldDelimiter, String equalSign) {
+        if ((fieldDelimiter == null || equalSign == null) || (fieldDelimiter.isEmpty() || equalSign.isEmpty())) {
+            throw new IllegalArgumentException("Field delimiter sign or equal sign could not be empty or null");
+        }
         this.fieldDelimiter = fieldDelimiter;
         this.equalSign = equalSign;
     }
