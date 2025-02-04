@@ -1,5 +1,6 @@
 package com.galaxy13.network.netty.auth;
 
+import com.galaxy13.network.exception.ClientVersionException;
 import com.galaxy13.network.message.Operation;
 import com.galaxy13.network.message.Response;
 import com.galaxy13.network.message.code.MessageCode;
@@ -7,6 +8,7 @@ import com.galaxy13.network.message.creator.MessageCreator;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.CorruptedFrameException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -82,10 +84,12 @@ public class AuthHandler extends ChannelDuplexHandler {
             } else if (response.getCode().equals(MessageCode.AUTHENTICATION_FAILURE)){
                 throw new CredentialException("Invalid credentials provided. Connection rejected from server.");
             } else if (response.getCode().equals(MessageCode.INVALID_TOKEN)){
-                logger.warn("Invalid token provided. Authentication retrying");
+                logger.warn("Invalid token provided.");
             } else {
-                super.channelRead(ctx, msg);
+                throw new ClientVersionException("Wrong authentication response with code: " + response.getCode());
             }
+        } else {
+            throw new CorruptedFrameException("Received unexpected response from decoder");
         }
     }
 }
