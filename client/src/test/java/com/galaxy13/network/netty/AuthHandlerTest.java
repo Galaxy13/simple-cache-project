@@ -1,5 +1,8 @@
 package com.galaxy13.network.netty;
 
+import com.galaxy13.network.exception.CredentialException;
+import com.galaxy13.network.message.Response;
+import com.galaxy13.network.message.code.MessageCode;
 import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.network.message.creator.MessageCreatorImpl;
 import com.galaxy13.network.netty.auth.AuthHandler;
@@ -12,16 +15,20 @@ import io.netty.util.CharsetUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import static org.assertj.core.api.Assertions.*;
+import java.util.Map;
+
+import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class AuthHandlerTest {
     private EmbeddedChannel channel;
+    private Credentials credentials;
 
     @BeforeEach
     void setUp() {
-        Credentials creds = new Credentials("test", "123");
+        credentials = new Credentials("test", "123");
         MessageCreator creator = new MessageCreatorImpl(";", ":");
-        AuthHandler authHandler = new AuthHandler(creds, creator);
+        AuthHandler authHandler = new AuthHandler(credentials, creator);
         channel = new EmbeddedChannel();
         channel.pipeline().addLast(authHandler);
     }
@@ -30,5 +37,20 @@ class AuthHandlerTest {
     void wrongMessageFormatHandling() {
         ByteBuf buf = Unpooled.copiedBuffer("wrong", CharsetUtil.UTF_8);
         assertThatThrownBy(() -> channel.writeInbound(buf)).isInstanceOf(CorruptedFrameException.class);
+    }
+
+    @Test
+    void wrongCredentialsHandling() {
+        Response response = Response.readFromMsg(Map.of("code", MessageCode.AUTHENTICATION_FAILURE.code()));
+        assertThatThrownBy(() -> channel.writeInbound(response)).isInstanceOf(CredentialException.class);
+    }
+
+    @Test
+    void wrongTokenHandling() {
+        credentials.setToken("test");
+        Response response = Response.readFromMsg(Map.of("code", MessageCode.INVALID_TOKEN.code()));
+        channel.writeInbound(response);
+
+        assertThat(credentials.getToken()).isNull();
     }
 }

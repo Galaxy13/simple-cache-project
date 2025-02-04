@@ -1,4 +1,4 @@
-package com.galaxy13.client.blocking.exception;
+package com.galaxy13.network.exception;
 
 import com.galaxy13.network.netty.auth.Credentials;
 

@@ -1,6 +1,6 @@
 package com.galaxy13.network.netty.auth;
 
-import com.galaxy13.network.exception.ClientVersionException;
+import com.galaxy13.network.exception.CredentialException;
 import com.galaxy13.network.message.Operation;
 import com.galaxy13.network.message.Response;
 import com.galaxy13.network.message.code.MessageCode;
@@ -12,7 +12,6 @@ import io.netty.handler.codec.CorruptedFrameException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.login.CredentialException;
 import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Queue;
@@ -66,7 +65,7 @@ public class AuthHandler extends ChannelDuplexHandler {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof Response response) {
             if (response.getCode().equals(MessageCode.AUTHENTICATION_SUCCESS)){
                 String token = response.getParameter("token");
@@ -82,11 +81,11 @@ public class AuthHandler extends ChannelDuplexHandler {
                     logger.warn("No token provided with response from server: {}", ctx.channel().remoteAddress());
                 }
             } else if (response.getCode().equals(MessageCode.AUTHENTICATION_FAILURE)){
-                throw new CredentialException("Invalid credentials provided. Connection rejected from server.");
+                throw new CredentialException(credentials);
             } else if (response.getCode().equals(MessageCode.INVALID_TOKEN)){
-                logger.warn("Invalid token provided.");
-            } else {
-                throw new ClientVersionException("Wrong authentication response with code: " + response.getCode());
+                logger.warn("Invalid token provided. Token set to null. Operation will not be completed");
+                credentials.setToken(null);
+                waitingForAuth.set(true);
             }
         } else {
             throw new CorruptedFrameException("Received unexpected response from decoder");

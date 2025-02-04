@@ -1,10 +1,10 @@
 package com.galaxy13.client.blocking;
 
 
-import com.galaxy13.client.blocking.exception.CredentialException;
 import com.galaxy13.network.blocking.BlockingClient;
 import com.galaxy13.network.blocking.SocketBlockingClient;
 import com.galaxy13.network.blocking.handler.ClientMessageBlockingHandler;
+import com.galaxy13.network.exception.CredentialException;
 import com.galaxy13.network.message.Operation;
 import com.galaxy13.network.message.Response;
 import com.galaxy13.network.message.code.MessageCode;
