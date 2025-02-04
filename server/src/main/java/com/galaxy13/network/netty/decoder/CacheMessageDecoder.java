@@ -5,6 +5,7 @@ import com.galaxy13.network.message.Operation;
 import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.network.message.response.CacheResponse;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.CorruptedFrameException;
@@ -29,6 +30,8 @@ public class CacheMessageDecoder extends ByteToMessageDecoder {
             try {
                 String op = parameters.get("op");
                 if (op == null) {
+                    ctx.writeAndFlush(CacheResponse.create(MessageCode.FORMAT_EXCEPTION))
+                            .addListener(ChannelFutureListener.CLOSE);
                     throw new CorruptedFrameException("No operation parameter in message: " + message);
                 }
                 Operation operation = Operation.valueOf(op);
@@ -49,8 +52,9 @@ public class CacheMessageDecoder extends ByteToMessageDecoder {
                 out.add(cacheMessage);
             } catch (IllegalArgumentException e){
                 logger.info("Invalid operation", e);
-                ctx.writeAndFlush(CacheResponse.create(MessageCode.FORMAT_EXCEPTION));
-                throw new CorruptedFrameException("Invalid operation");
+                ctx.writeAndFlush(CacheResponse.create(MessageCode.FORMAT_EXCEPTION))
+                        .addListener(ChannelFutureListener.CLOSE);
+                throw new CorruptedFrameException("Invalid operation in msg: " + message);
             }
         }
     }

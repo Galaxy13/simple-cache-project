@@ -5,7 +5,7 @@ import com.galaxy13.network.netty.auth.AuthHandler;
 import com.galaxy13.network.netty.auth.Credentials;
 import com.galaxy13.network.netty.decoder.CacheMessageDecoder;
 import com.galaxy13.network.netty.encoder.ResponseEncoder;
-import com.galaxy13.network.netty.handler.SimpleTCPChannelHandler;
+import com.galaxy13.network.netty.handler.BasicCacheProcessingHandler;
 import com.galaxy13.processor.ProcessorController;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -53,7 +53,7 @@ public class NettyServer implements StorageServer {
                             socketChannel.pipeline().addLast(new CacheMessageDecoder());
                             socketChannel.pipeline().addLast(new ResponseEncoder<>(messageCreator));
                             socketChannel.pipeline().addLast(new AuthHandler(credentials));
-                            socketChannel.pipeline().addLast(new SimpleTCPChannelHandler(processorController));
+                            socketChannel.pipeline().addLast(new BasicCacheProcessingHandler(processorController));
                         }
                     })
                     .childOption(ChannelOption.SO_KEEPALIVE, true);

@@ -5,6 +5,7 @@ import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.network.message.response.CacheResponse;
 import com.galaxy13.storage.Value;
 import io.netty.channel.Channel;
+import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -28,10 +29,10 @@ public class SubscriptionHandlerImpl implements SubscriptionHandler {
         if (key != null) {
             subscriptions.computeIfAbsent(key, k -> new ArrayList<>()).add(channel);
             logger.info("Subscription created on key: {} for channel: {}", key, channel);
-            channel.writeAndFlush(CacheResponse.create(MessageCode.SUBSCRIPTION_SUCCESS));
+            channel.writeAndFlush(CacheResponse.createFrom(MessageCode.SUBSCRIPTION_SUCCESS, "key", key));
         } else {
             logger.warn("Subscribe failed: key is null");
-            channel.writeAndFlush(CacheResponse.create(MessageCode.SUBSCRIPTION_ERROR));
+            channel.writeAndFlush(CacheResponse.create(MessageCode.SUBSCRIPTION_ERROR)).addListener(ChannelFutureListener.CLOSE);
         }
     }
 
@@ -43,11 +44,12 @@ public class SubscriptionHandlerImpl implements SubscriptionHandler {
             var response = CacheResponse.createFrom(MessageCode.SUBSCRIPTION_RESPONSE,
                     "key", key,
                     "value", value.value());
-            subscriptionChannels.forEach(channel ->
-                    {
-                        channel.writeAndFlush(response);
-                        logger.trace("Sending subscription response to channel: {}", channel);
-                    });
+            for (Channel channel : subscriptionChannels) {
+                if (channel.isOpen()) {
+                    channel.writeAndFlush(response);
+                }
+                logger.info("Subscription handling on key: {} for channel: {}", key, channel);
+            }
         }
         logger.trace("No channels subscribed for key {}", key);
     }
