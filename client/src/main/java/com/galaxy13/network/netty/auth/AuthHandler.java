@@ -67,7 +67,7 @@ public class AuthHandler extends ChannelDuplexHandler {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof Response response) {
             if (response.getCode().equals(MessageCode.AUTHENTICATION_SUCCESS)){
                 String token = response.getParameter("token");
