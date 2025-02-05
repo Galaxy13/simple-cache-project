@@ -21,9 +21,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
@@ -37,7 +38,9 @@ class FullPipelineTest {
     private MessageCreator messageCreator;
     private ResponseAction action;
     private ErrorAction errorAction;
-    private final List<Future<?>> futures = new CopyOnWriteArrayList<>();
+    private final List<Future<?>> futures = new ArrayList<>();
+    private final ExecutorService executor = Executors.newCachedThreadPool();
+    private final Phaser phaser = new Phaser(1);
 
     @BeforeEach
     void setUp() {
@@ -51,7 +54,7 @@ class FullPipelineTest {
         messageCreator = new MessageCreatorImpl(parameterDelimiter, equalDelimiter);
         var decoder = new ResponseDecoder(parameterDelimiter, equalDelimiter);
         var authHandler = new AuthHandler(credentials, messageCreator);
-        var clientHandler = new ResponseHandler(action, errorAction, new Phaser(1),futures, Executors.newCachedThreadPool());
+        var clientHandler = new ResponseHandler(action, errorAction, phaser, futures, executor);
 
         channel = new EmbeddedChannel();
         channel.pipeline().addLast(decoder);
