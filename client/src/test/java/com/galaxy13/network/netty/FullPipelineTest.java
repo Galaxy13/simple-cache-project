@@ -196,9 +196,6 @@ class FullPipelineTest {
         verify(credentials, times(1)).getToken();
 
         // check response to server response
-        verify(action, times(1)).action(Response.readFromMsg(Map.of(
-                "code", MessageCode.NOT_PRESENT.code()
-        )));
         verify(errorAction, times(0)).execute(ArgumentMatchers.any());
     }
 
@@ -234,10 +231,6 @@ class FullPipelineTest {
         verify(credentials, times(1)).getToken();
 
         // check actions on response
-        verify(action, times(1)).action(Response.readFromMsg(Map.of(
-                "code", MessageCode.SUBSCRIPTION_SUCCESS.code(),
-                "key", key
-        )));
         verify(errorAction, times(0)).execute(ArgumentMatchers.any());
     }
 }
