@@ -1,15 +1,16 @@
 package com.galaxy13.network.netty;
 
+import com.galaxy13.client.async.action.ErrorAction;
+import com.galaxy13.client.async.action.ResponseAction;
 import com.galaxy13.network.NetworkStorageClient;
 import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.network.netty.auth.AuthHandler;
 import com.galaxy13.network.netty.auth.Credentials;
-import com.galaxy13.network.netty.handler.ResponseHandler;
 import com.galaxy13.network.netty.decoder.ResponseDecoder;
-import com.galaxy13.client.async.action.ErrorAction;
-import com.galaxy13.client.async.action.ResponseAction;
+import com.galaxy13.network.netty.handler.ResponseHandler;
 import io.netty.bootstrap.Bootstrap;
-import io.netty.channel.*;
+import io.netty.channel.ChannelFuture;
+import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
@@ -77,7 +78,6 @@ public class NettyClient implements NetworkStorageClient{
             if(!fut.isSuccess()){
                 logger.error("Error sending data to server", future.cause());
                 pendingRequests.arriveAndDeregister();
-//                sendMessage(message, respAction, errorAction);
             } else {
                 logger.info("Successfully sent data to server: {}", channel.remoteAddress());
             }

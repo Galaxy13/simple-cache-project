@@ -5,7 +5,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-public class LRUStorage<K> implements Storage<K> {
+public class LRUStorage<K> implements Storage<K, Value> {
 
     private final ConcurrentMap<K, Node> storage;
     private final DoublyLinkedList deque;
@@ -51,13 +51,23 @@ public class LRUStorage<K> implements Storage<K> {
             deque.addFirst(node);
         } else {
             if (currentSize == capacity) {
-                deque.removeLast();
+                Node removedNode = deque.removeLast();
+                if (removedNode != null) {
+                    storage.remove(removedNode.key);
+                    currentSize--;
+                }
             }
             Node newNode = new Node(key, value);
             storage.put(key, newNode);
             deque.addFirst(newNode);
+            currentSize++;
         }
         return value;
+    }
+
+    @Override
+    public int size() {
+        return currentSize;
     }
 
     private class Node{

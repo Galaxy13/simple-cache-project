@@ -1,5 +1,5 @@
-import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import name.remal.gradle_plugins.sonarlint.SonarLintExtension
+import org.gradle.plugins.ide.idea.model.IdeaLanguageLevel
 import org.springframework.boot.gradle.plugin.SpringBootPlugin.BOM_COORDINATES
 
 plugins {
@@ -28,12 +28,15 @@ allprojects {
         mavenCentral()
     }
 
+    val cli: String by project
+
     apply(plugin = "io.spring.dependency-management")
     dependencyManagement {
         dependencies {
             imports {
                 mavenBom(BOM_COORDINATES)
             }
+            dependency("commons-cli:commons-cli:$cli")
         }
     }
 

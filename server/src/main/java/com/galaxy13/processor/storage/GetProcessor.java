@@ -7,14 +7,14 @@ import com.galaxy13.storage.Value;
 import java.util.Optional;
 
 public class GetProcessor extends AbstractStorageProcessor implements StorageProcessor {
-    public GetProcessor(Storage<String> storage) {
+    public GetProcessor(Storage<String, Value> storage) {
         super(storage);
     }
 
     @Override
     public Optional<Value> process(CacheMessage message) {
         String key = message.getParameter("key");
-        if (key != null) {
+        if (key != null && !key.isEmpty()) {
             Optional<Value> value = storage.get(key);
             if (value.isPresent()) {
                 Value v = value.get();

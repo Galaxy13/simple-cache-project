@@ -26,4 +26,8 @@ public enum MessageCode {
         }
         return null;
     }
+
+    public String code() {
+        return code;
+    }
 }

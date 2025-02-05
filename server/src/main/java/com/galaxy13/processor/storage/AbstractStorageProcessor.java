@@ -7,9 +7,9 @@ import com.galaxy13.storage.Value;
 import java.util.Optional;
 
 public abstract class AbstractStorageProcessor implements StorageProcessor {
-    protected final Storage<String> storage;
+    protected final Storage<String, Value> storage;
 
-    protected AbstractStorageProcessor(Storage<String> storage) {
+    protected AbstractStorageProcessor(Storage<String, Value> storage) {
         this.storage = storage;
     }
 

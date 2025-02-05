@@ -1,5 +1,6 @@
 package com.galaxy13.network.netty.auth;
 
+import com.galaxy13.network.exception.CredentialException;
 import com.galaxy13.network.message.Operation;
 import com.galaxy13.network.message.Response;
 import com.galaxy13.network.message.code.MessageCode;
@@ -7,10 +8,10 @@ import com.galaxy13.network.message.creator.MessageCreator;
 import io.netty.channel.ChannelDuplexHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelPromise;
+import io.netty.handler.codec.CorruptedFrameException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import javax.security.auth.login.CredentialException;
 import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Queue;
@@ -21,7 +22,7 @@ public class AuthHandler extends ChannelDuplexHandler {
 
     private final MessageCreator messageCreator;
     private final Credentials credentials;
-    private final Queue<QueuedMessage> queue;
+    private Queue<QueuedMessage> queue;
     private final AtomicBoolean waitingForAuth;
 
     public AuthHandler(Credentials credentials, MessageCreator messageCreator) {
@@ -48,8 +49,10 @@ public class AuthHandler extends ChannelDuplexHandler {
 
         if (!credentials.containsToken()) {
             waitingForAuth.set(true);
+            String login = credentials.getLogin();
+            String password = credentials.getPassword();
             String message = messageCreator.createRequest(Operation.AUTHENTICATE,
-                    Map.of("login", credentials.getLogin(), "password", credentials.getPassword()));
+                    Map.of("login", login, "password", password));
             ctx.writeAndFlush(message).addListener(future -> {
                 if (!future.isSuccess()) {
                     logger.error("Failed to write message", future.cause());
@@ -64,7 +67,7 @@ public class AuthHandler extends ChannelDuplexHandler {
     }
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
+    public void channelRead(ChannelHandlerContext ctx, Object msg) {
         if (msg instanceof Response response) {
             if (response.getCode().equals(MessageCode.AUTHENTICATION_SUCCESS)){
                 String token = response.getParameter("token");
@@ -80,12 +83,18 @@ public class AuthHandler extends ChannelDuplexHandler {
                     logger.warn("No token provided with response from server: {}", ctx.channel().remoteAddress());
                 }
             } else if (response.getCode().equals(MessageCode.AUTHENTICATION_FAILURE)){
-                throw new CredentialException("Invalid credentials provided. Connection rejected from server.");
+                queue = new ArrayDeque<>();
+                throw new CredentialException(credentials);
             } else if (response.getCode().equals(MessageCode.INVALID_TOKEN)){
-                logger.warn("Invalid token provided. Authentication retrying");
+                logger.warn("Invalid token provided. Token set to null. Authentication retrying...");
+                credentials.setToken(null);
+                ctx.channel().writeAndFlush(messageCreator.createRequest(Operation.AUTHENTICATE,
+                        Map.of("login", credentials.getLogin(), "password", credentials.getPassword())));
             } else {
-                super.channelRead(ctx, msg);
+                ctx.fireChannelRead(msg);
             }
+        } else {
+            throw new CorruptedFrameException("Received unexpected response from decoder");
         }
     }
 }

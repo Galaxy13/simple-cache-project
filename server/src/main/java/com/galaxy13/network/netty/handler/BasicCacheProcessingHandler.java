@@ -9,12 +9,12 @@ import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 
 @ChannelHandler.Sharable
-public class SimpleTCPChannelHandler extends SimpleChannelInboundHandler<CacheMessage> {
-    private static final Logger logger = LoggerFactory.getLogger(SimpleTCPChannelHandler.class);
+public class BasicCacheProcessingHandler extends SimpleChannelInboundHandler<CacheMessage> {
+    private static final Logger logger = LoggerFactory.getLogger(BasicCacheProcessingHandler.class);
 
     private final ProcessorController controller;
 
-    public SimpleTCPChannelHandler(ProcessorController controller) {
+    public BasicCacheProcessingHandler(ProcessorController controller) {
         this.controller = controller;
     }
 

@@ -5,6 +5,7 @@ import com.galaxy13.network.message.Operation;
 import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.network.message.response.CacheResponse;
 import io.netty.buffer.ByteBuf;
+import io.netty.channel.ChannelFutureListener;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 import io.netty.handler.codec.CorruptedFrameException;
@@ -21,13 +22,19 @@ public class CacheMessageDecoder extends ByteToMessageDecoder {
     private static final Logger logger = LoggerFactory.getLogger(CacheMessageDecoder.class);
 
     @Override
-    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out){
+    protected void decode(ChannelHandlerContext ctx, ByteBuf in, List<Object> out) {
         if (in.readableBytes() > 4) {
             String message = in.toString(in.readerIndex(), in.readableBytes(), StandardCharsets.UTF_8);
             in.readerIndex(in.writerIndex());
             Map<String, String> parameters = getFields(message);
             try {
-                Operation operation = Operation.valueOf(parameters.get("op"));
+                String op = parameters.get("op");
+                if (op == null) {
+                    ctx.writeAndFlush(CacheResponse.create(MessageCode.FORMAT_EXCEPTION))
+                            .addListener(ChannelFutureListener.CLOSE);
+                    throw new CorruptedFrameException("No operation parameter in message: " + message);
+                }
+                Operation operation = Operation.valueOf(op);
                 CacheMessage cacheMessage = new CacheMessage() {
                     private final Operation op = operation;
                     private final Map<String, String> params = parameters;
@@ -45,8 +52,9 @@ public class CacheMessageDecoder extends ByteToMessageDecoder {
                 out.add(cacheMessage);
             } catch (IllegalArgumentException e){
                 logger.info("Invalid operation", e);
-                ctx.writeAndFlush(CacheResponse.create(MessageCode.FORMAT_EXCEPTION));
-                throw new CorruptedFrameException("Invalid operation");
+                ctx.writeAndFlush(CacheResponse.create(MessageCode.FORMAT_EXCEPTION))
+                        .addListener(ChannelFutureListener.CLOSE);
+                throw new CorruptedFrameException("Invalid operation in msg: " + message);
             }
         }
     }

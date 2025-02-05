@@ -1,12 +1,12 @@
 package com.galaxy13.client.async;
 
+import com.galaxy13.client.async.action.ResourceSupplier;
+import com.galaxy13.network.NetworkStorageClient;
+import com.galaxy13.network.message.Operation;
+import com.galaxy13.network.message.code.MessageCode;
 import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.network.message.creator.MessageCreatorImpl;
 import com.galaxy13.network.netty.NettyClient;
-import com.galaxy13.network.NetworkStorageClient;
-import com.galaxy13.network.message.code.MessageCode;
-import com.galaxy13.network.message.Operation;
-import com.galaxy13.client.async.action.ResourceSupplier;
 import com.galaxy13.network.netty.auth.Credentials;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -22,12 +22,30 @@ public class AsyncStorageClient{
     private final NetworkStorageClient networkStorageClient;
     private final MessageCreator messageCreator;
 
-    public AsyncStorageClient(int port, String host) {
+    public AsyncStorageClient(int port, String host, String username, String password, ExecutorService executor){
+        this.messageCreator = new MessageCreatorImpl(";", ":");
+        this.networkStorageClient = new NettyClient(port,
+                host,
+                executor,
+                new Credentials(username, password),
+                messageCreator);
+    }
+
+    public static AsyncStorageClient create(int port, String host) {
+        logger.warn("Cache client created without login and password. Using default executor");
+        return new AsyncStorageClient(port, host, "", "", Executors.newCachedThreadPool());
+    }
+
+    public static AsyncStorageClient createWithCredentials(int port, String host, String username, String password) {
+        return new AsyncStorageClient(port, host, username, password, Executors.newCachedThreadPool());
+    }
+
+    public AsyncStorageClient(int port, String host, String username, String password) {
         this.messageCreator = new MessageCreatorImpl(";", ":");
         this.networkStorageClient = new NettyClient(port,
                 host,
                 Executors.newCachedThreadPool(),
-                new Credentials("user", "pwd"),
+                new Credentials(username, password),
                 messageCreator);
         logger.info("Storage client created");
     }
@@ -42,14 +60,10 @@ public class AsyncStorageClient{
                 messageCreator);
     }
 
-    public static AsyncStorageClient start(int port, String host) {
-        return new AsyncStorageClient(port, host);
-    }
-
     public void shutdown() {
         try {
-            if (networkStorageClient instanceof NettyClient) {
-                ((NettyClient) networkStorageClient).shutdown();
+            if (networkStorageClient instanceof NettyClient nettyClient) {
+                nettyClient.shutdown();
             }
         } catch (Exception e) {
             logger.error("Error closing network storage", e);
