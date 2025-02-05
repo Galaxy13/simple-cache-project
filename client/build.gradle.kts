@@ -1,4 +1,4 @@
-version = "0.1.1-test"
+version = "0.1.3-test"
 
 dependencies {
     implementation ("ch.qos.logback:logback-classic")

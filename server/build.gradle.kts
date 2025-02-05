@@ -1,6 +1,6 @@
 import com.github.jengelman.gradle.plugins.shadow.tasks.ShadowJar
 
-version = "0.1.1-test"
+version = "0.1.3-test"
 
 plugins {
     id("com.github.johnrengelman.shadow")

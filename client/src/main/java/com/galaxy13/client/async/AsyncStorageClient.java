@@ -22,12 +22,30 @@ public class AsyncStorageClient{
     private final NetworkStorageClient networkStorageClient;
     private final MessageCreator messageCreator;
 
-    public AsyncStorageClient(int port, String host) {
+    public AsyncStorageClient(int port, String host, String username, String password, ExecutorService executor){
+        this.messageCreator = new MessageCreatorImpl(";", ":");
+        this.networkStorageClient = new NettyClient(port,
+                host,
+                executor,
+                new Credentials(username, password),
+                messageCreator);
+    }
+
+    public static AsyncStorageClient create(int port, String host) {
+        logger.warn("Cache client created without login and password. Using default executor");
+        return new AsyncStorageClient(port, host, "", "", Executors.newCachedThreadPool());
+    }
+
+    public static AsyncStorageClient createWithCredentials(int port, String host, String username, String password) {
+        return new AsyncStorageClient(port, host, username, password, Executors.newCachedThreadPool());
+    }
+
+    public AsyncStorageClient(int port, String host, String username, String password) {
         this.messageCreator = new MessageCreatorImpl(";", ":");
         this.networkStorageClient = new NettyClient(port,
                 host,
                 Executors.newCachedThreadPool(),
-                new Credentials("user", "pwd"),
+                new Credentials(username, password),
                 messageCreator);
         logger.info("Storage client created");
     }
@@ -40,10 +58,6 @@ public class AsyncStorageClient{
                 executor,
                 new Credentials("user", "pwd"),
                 messageCreator);
-    }
-
-    public static AsyncStorageClient start(int port, String host) {
-        return new AsyncStorageClient(port, host);
     }
 
     public void shutdown() {

@@ -3,6 +3,7 @@ package com.galaxy13.network.message;
 import com.galaxy13.network.message.code.MessageCode;
 
 import java.util.Map;
+import java.util.Objects;
 
 public class Response {
     private final MessageCode messageCode;
@@ -35,10 +36,26 @@ public class Response {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("code: ").append(messageCode);
+        builder.append("code:").append(messageCode);
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
             builder.append(entry.getKey()).append(":").append(entry.getValue()).append(";");
         }
         return builder.toString();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Response response = (Response) o;
+        if (messageCode != response.messageCode) return false;
+        return Objects.equals(parameters, response.parameters);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = messageCode != null ? messageCode.hashCode() : 0;
+        result = 31 * result + (parameters != null ? parameters.hashCode() : 0);
+        return result;
     }
 }
