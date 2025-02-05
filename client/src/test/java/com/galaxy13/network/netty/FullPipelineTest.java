@@ -24,6 +24,7 @@ import org.mockito.Mockito;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
@@ -37,7 +38,7 @@ class FullPipelineTest {
     private MessageCreator messageCreator;
     private ResponseAction action;
     private ErrorAction errorAction;
-    private final List<Future<?>> futures = new ArrayList<>();
+    private final List<Future<?>> futures = new CopyOnWriteArrayList<>();
 
     @BeforeEach
     void setUp() {
