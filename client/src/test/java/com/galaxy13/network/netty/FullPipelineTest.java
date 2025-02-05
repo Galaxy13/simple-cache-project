@@ -22,8 +22,10 @@ import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
 
 import static org.assertj.core.api.Assertions.*;
@@ -35,6 +37,7 @@ class FullPipelineTest {
     private MessageCreator messageCreator;
     private ResponseAction action;
     private ErrorAction errorAction;
+    private final List<Future<?>> futures = new ArrayList<>();
 
     @BeforeEach
     void setUp() {
@@ -48,7 +51,7 @@ class FullPipelineTest {
         messageCreator = new MessageCreatorImpl(parameterDelimiter, equalDelimiter);
         var decoder = new ResponseDecoder(parameterDelimiter, equalDelimiter);
         var authHandler = new AuthHandler(credentials, messageCreator);
-        var clientHandler = new ResponseHandler(action, errorAction, new Phaser(1), new ArrayList<>(), Executors.newCachedThreadPool());
+        var clientHandler = new ResponseHandler(action, errorAction, new Phaser(1),futures, Executors.newCachedThreadPool());
 
         channel = new EmbeddedChannel();
         channel.pipeline().addLast(decoder);
