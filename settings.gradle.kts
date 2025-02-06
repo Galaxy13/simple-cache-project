@@ -1,6 +1,7 @@
 rootProject.name = "simple-cache-project"
 include("server")
 include("client")
+include("example")
 
 pluginManagement {
     val dependencyManagement: String by settings

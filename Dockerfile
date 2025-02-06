@@ -1,9 +1,10 @@
-FROM gradle:8-jdk21-corretto AS build
+FROM gradle:8.8.0 AS build
 LABEL authors="Retroider"
 WORKDIR /app
 
 COPY build.gradle.kts .
 COPY settings.gradle.kts .
+COPY gradle.properties .
 COPY server ./server
 
 RUN gradle build

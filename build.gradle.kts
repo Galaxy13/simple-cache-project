@@ -6,7 +6,7 @@ plugins {
     id("java")
     idea
     id("io.spring.dependency-management")
-    id("org.springframework.boot") apply false
+    id("org.springframework.boot")
     id("name.remal.sonarlint")
 }
 
@@ -39,7 +39,6 @@ allprojects {
             dependency("commons-cli:commons-cli:$cli")
         }
     }
-
 }
 
 dependencies {
