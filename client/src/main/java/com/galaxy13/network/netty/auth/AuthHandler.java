@@ -1,6 +1,7 @@
 package com.galaxy13.network.netty.auth;
 
 import com.galaxy13.network.exception.CredentialException;
+import com.galaxy13.network.exception.MessageWriteException;
 import com.galaxy13.network.message.Operation;
 import com.galaxy13.network.message.Response;
 import com.galaxy13.network.message.code.MessageCode;
@@ -57,6 +58,7 @@ public class AuthHandler extends ChannelDuplexHandler {
                 if (!future.isSuccess()) {
                     logger.error("Failed to write message", future.cause());
                     waitingForAuth.set(false);
+                    throw new MessageWriteException("Netty failed to write message due to " + future.cause().getMessage());
                 }
             });
             queue.add(new QueuedMessage(ctx, msg, promise));

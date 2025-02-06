@@ -40,6 +40,8 @@ public class ResponseDecoder extends ByteToMessageDecoder {
                 ctx.close();
                 throw new CorruptedFrameException("Unknown response format received: " + msg, e);
             }
+        } else {
+            throw new CorruptedFrameException("Corrupted message received");
         }
     }
 

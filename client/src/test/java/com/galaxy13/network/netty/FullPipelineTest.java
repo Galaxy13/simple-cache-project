@@ -20,12 +20,12 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
+import org.mockito.stubbing.Answer;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
 
@@ -39,7 +39,6 @@ class FullPipelineTest {
     private ResponseAction action;
     private ErrorAction errorAction;
     private final List<Future<?>> futures = new ArrayList<>();
-    private final ExecutorService executor = Executors.newCachedThreadPool();
     private final Phaser phaser = new Phaser(1);
 
     @BeforeEach
@@ -47,6 +46,9 @@ class FullPipelineTest {
         credentials = Mockito.mock(Credentials.class);
         action = Mockito.mock(ResponseAction.class);
         errorAction = Mockito.mock(ErrorAction.class);
+        ExecutorService executor = Mockito.mock(ExecutorService.class);
+
+        mockAsSynchronizedExecutor(executor);
 
         String parameterDelimiter = ";";
         String equalDelimiter = ":";
@@ -196,6 +198,9 @@ class FullPipelineTest {
         verify(credentials, times(1)).getToken();
 
         // check response to server response
+        verify(action, times(1)).action(Response.readFromMsg(
+                Map.of("code", MessageCode.NOT_PRESENT.code())
+        ));
         verify(errorAction, times(0)).execute(ArgumentMatchers.any());
     }
 
@@ -231,6 +236,18 @@ class FullPipelineTest {
         verify(credentials, times(1)).getToken();
 
         // check actions on response
+        verify(action, times(1)).action(Response.readFromMsg(
+                Map.of("code", MessageCode.SUBSCRIPTION_SUCCESS.code(),
+                        "key", key)
+        ));
         verify(errorAction, times(0)).execute(ArgumentMatchers.any());
+    }
+
+    // this mocking executes Runnable in same thread, so the verify() can be correctly checked
+    private void mockAsSynchronizedExecutor(ExecutorService executor) {
+        doAnswer((Answer<Object>) invocation -> {
+            ((Runnable) invocation.getArguments()[0]).run();
+            return null;
+        }).when(executor).submit(any(Runnable.class));
     }
 }
