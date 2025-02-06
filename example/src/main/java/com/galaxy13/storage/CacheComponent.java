@@ -8,14 +8,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Component
-public class CacheController {
+public class CacheComponent {
     private final AsyncStorageClient storageClient;
     private final BlockingStorageClient blockingClient;
 
-    public CacheController(@Value("${storage.port}") int port,
-                           @Value("${storage.host}") String host,
-                           @Value("${storage.username}") String username,
-                           @Value("${storage.password}") String password) {
+    public CacheComponent(@Value("${storage.port}") int port,
+                          @Value("${storage.host}") String host,
+                          @Value("${storage.username}") String username,
+                          @Value("${storage.password}") String password) {
         this.storageClient = new AsyncStorageClient(port, host, username, password);
         this.blockingClient = new BlockingStorageClient(port, host, username, password);
     }

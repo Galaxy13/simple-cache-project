@@ -3,6 +3,7 @@ package com.galaxy13.network.netty.auth;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -19,7 +20,7 @@ public class Credentials {
     public Credentials(String login, String password) {
         this.login = login;
         this.password = password;
-        tokens = new HashSet<>();
+        tokens = Collections.synchronizedSet(new HashSet<>());
         if (login == null || password == null) {
             logger.warn("No login or password provided. Credentials will be ignored.");
             this.omitCredentials = true;

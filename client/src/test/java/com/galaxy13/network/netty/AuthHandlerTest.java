@@ -7,6 +7,7 @@ import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.network.message.creator.MessageCreatorImpl;
 import com.galaxy13.network.netty.auth.AuthHandler;
 import com.galaxy13.network.netty.auth.Credentials;
+import com.galaxy13.network.netty.auth.QueuedMessage;
 import io.netty.buffer.ByteBuf;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.embedded.EmbeddedChannel;
@@ -17,6 +18,10 @@ import org.junit.jupiter.api.Test;
 import org.mockito.Mockito;
 
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -25,12 +30,18 @@ import static org.mockito.Mockito.*;
 class AuthHandlerTest {
     private EmbeddedChannel channel;
     private Credentials credentials;
+    private ReentrantLock lock;
+    private AtomicBoolean atomicBoolean;
+    private Queue<QueuedMessage> queue;
 
     @BeforeEach
     void setUp() {
         credentials = Mockito.mock(Credentials.class);
+        lock = new ReentrantLock();
+        atomicBoolean = new AtomicBoolean(false);
+        queue = new ConcurrentLinkedQueue<>();
         MessageCreator creator = new MessageCreatorImpl(";", ":");
-        AuthHandler authHandler = new AuthHandler(credentials, creator);
+        AuthHandler authHandler = new AuthHandler(credentials, creator, lock, atomicBoolean, queue);
         channel = new EmbeddedChannel();
         channel.pipeline().addLast(authHandler);
     }

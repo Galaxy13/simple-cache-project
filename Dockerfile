@@ -7,7 +7,7 @@ COPY settings.gradle.kts .
 COPY gradle.properties .
 COPY server ./server
 
-RUN gradle build
+RUN gradle :server:build
 
 FROM amazoncorretto:21-alpine-jdk
 WORKDIR /app

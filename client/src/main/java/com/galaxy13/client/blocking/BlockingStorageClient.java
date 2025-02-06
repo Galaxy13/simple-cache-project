@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Map;
+import java.util.concurrent.locks.ReentrantLock;
 
 @SuppressWarnings({"unused"})
 public class BlockingStorageClient {
@@ -29,6 +30,7 @@ public class BlockingStorageClient {
     private final BlockingClient blockingClient;
     private final MessageCreator messageCreator;
     private final Credentials credentials;
+    private final ReentrantLock lock = new ReentrantLock();
 
     public BlockingStorageClient(int port, String host, String username, String password) {
         this.blockingClient = new SocketBlockingClient(port, host, new ClientMessageBlockingHandler());
@@ -40,14 +42,24 @@ public class BlockingStorageClient {
         checkToken();
         String msg = messageCreator.createRequest(Operation.PUT,
                 Map.of(KEY_FIELD_NAME, key, VALUE_FIELD_NAME, value, TOKEN_FIELD_NAME, credentials.getToken()));
-        return handleResponse(msg);
+        lock.lock();
+        try {
+            return handleResponse(msg);
+        } finally {
+            lock.unlock();
+        }
     }
 
     public String get(String key) {
         checkToken();
         String msg = messageCreator.createRequest(Operation.GET,
                 Map.of(KEY_FIELD_NAME, key, TOKEN_FIELD_NAME, credentials.getToken()));
-        return handleResponse(msg);
+        lock.lock();
+        try {
+            return handleResponse(msg);
+        } finally {
+            lock.unlock();
+        }
     }
 
     private String handleResponse(String msg) {
@@ -55,8 +67,13 @@ public class BlockingStorageClient {
             Response response = blockingClient.sendMessage(msg);
             if (response.getCode().equals(MessageCode.OK)){
                 return response.getParameter(VALUE_FIELD_NAME);
-            } else {
-                return null;
+            } else if (response.getCode().equals(MessageCode.INVALID_TOKEN)) {
+                if (!authenticate()){
+                    throw new CredentialException(credentials);
+                } else {
+                    logger.warn("Request ignored");
+                    return "0";
+                }
             }
         } catch (InterruptedException e) {
             logger.error(e.getMessage(), e);

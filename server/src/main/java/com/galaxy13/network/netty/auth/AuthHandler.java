@@ -68,7 +68,7 @@ public class AuthHandler extends SimpleChannelInboundHandler<CacheMessage> {
             logger.trace("Token check successful for {} with token: {}", ctx.channel().remoteAddress(), token);
             ctx.fireChannelRead(msg);
         } else {
-            logger.trace("Token check failed for {} with token: {}", ctx.channel().remoteAddress(), token);
+            logger.info("Token check failed for {} with token: {}", ctx.channel().remoteAddress(), token);
             var response = CacheResponse.create(MessageCode.INVALID_TOKEN);
             ctx.writeAndFlush(response).addListener(ChannelFutureListener.CLOSE);
         }

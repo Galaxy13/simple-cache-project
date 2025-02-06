@@ -3,24 +3,24 @@ package com.galaxy13.processor.subscription;
 import com.galaxy13.network.message.MessageCode;
 import com.galaxy13.network.message.request.CacheMessage;
 import com.galaxy13.network.message.response.CacheResponse;
+import com.galaxy13.storage.Storage;
 import com.galaxy13.storage.Value;
 import io.netty.channel.Channel;
 import io.netty.channel.ChannelFutureListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class SubscriptionHandlerImpl implements SubscriptionHandler {
     private static final Logger logger = LoggerFactory.getLogger(SubscriptionHandlerImpl.class);
 
     private final Map<String, List<Channel>> subscriptions;
+    private final Storage<String, Value> storage;
 
-    public SubscriptionHandlerImpl() {
-        subscriptions = new HashMap<>();
+    public SubscriptionHandlerImpl(Storage<String, Value> storage) {
+        this.subscriptions = new HashMap<>();
+        this.storage = storage;
     }
 
     @Override
@@ -29,7 +29,12 @@ public class SubscriptionHandlerImpl implements SubscriptionHandler {
         if (key != null) {
             subscriptions.computeIfAbsent(key, k -> new ArrayList<>()).add(channel);
             logger.info("Subscription created on key: {} for channel: {}", key, channel);
-            channel.writeAndFlush(CacheResponse.createFrom(MessageCode.SUBSCRIPTION_SUCCESS, "key", key));
+            Optional<Value> value = storage.get(key);
+            if (value.isPresent()) {
+                channel.writeAndFlush(CacheResponse.createFrom(MessageCode.SUBSCRIPTION_SUCCESS, "key", key, "value", value.get().value()));
+            } else {
+                channel.writeAndFlush(CacheResponse.createFrom(MessageCode.SUBSCRIPTION_SUCCESS, "key", key));
+            }
         } else {
             logger.warn("Subscribe failed: key is null");
             channel.writeAndFlush(CacheResponse.create(MessageCode.SUBSCRIPTION_ERROR)).addListener(ChannelFutureListener.CLOSE);

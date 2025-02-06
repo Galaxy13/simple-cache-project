@@ -6,6 +6,7 @@ import com.galaxy13.network.NetworkStorageClient;
 import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.network.netty.auth.AuthHandler;
 import com.galaxy13.network.netty.auth.Credentials;
+import com.galaxy13.network.netty.auth.QueuedMessage;
 import com.galaxy13.network.netty.decoder.ResponseDecoder;
 import com.galaxy13.network.netty.handler.ResponseHandler;
 import io.netty.bootstrap.Bootstrap;
@@ -19,12 +20,10 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Future;
-import java.util.concurrent.Phaser;
+import java.util.*;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class NettyClient implements NetworkStorageClient{
     private static final Logger logger = LoggerFactory.getLogger(NettyClient.class);
@@ -37,6 +36,9 @@ public class NettyClient implements NetworkStorageClient{
     private final ExecutorService executor;
     private final Credentials credentials;
     private final MessageCreator messageCreator;
+    private final AtomicBoolean waitingForAuth = new AtomicBoolean(false);
+    private final ReentrantLock lock = new ReentrantLock();
+    private final Queue<QueuedMessage> queue;
 
     public NettyClient(int port,
                        String host,
@@ -51,6 +53,7 @@ public class NettyClient implements NetworkStorageClient{
         this.executor = executor;
         this.credentials = credentials;
         this.messageCreator = creator;
+        this.queue = new ConcurrentLinkedQueue<>();
     }
 
     @Override
@@ -65,7 +68,7 @@ public class NettyClient implements NetworkStorageClient{
                     public void initChannel(SocketChannel ch) {
                         ch.pipeline().addLast(new ResponseDecoder(";", ":"));
                         ch.pipeline().addLast(new StringEncoder());
-                        ch.pipeline().addLast(new AuthHandler(credentials, messageCreator));
+                        ch.pipeline().addLast(new AuthHandler(credentials, messageCreator, lock, waitingForAuth, queue));
                         ch.pipeline().addLast(new ResponseHandler(respAction,
                                 errorAction,
                                 pendingRequests,

@@ -17,6 +17,7 @@ import java.util.ArrayDeque;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class AuthHandler extends ChannelDuplexHandler {
     private static final Logger logger = LoggerFactory.getLogger(AuthHandler.class);
@@ -25,47 +26,59 @@ public class AuthHandler extends ChannelDuplexHandler {
     private final Credentials credentials;
     private Queue<QueuedMessage> queue;
     private final AtomicBoolean waitingForAuth;
+    private final ReentrantLock lock;
 
-    public AuthHandler(Credentials credentials, MessageCreator messageCreator) {
+    public AuthHandler(Credentials credentials,
+                       MessageCreator messageCreator,
+                       ReentrantLock lock,
+                       AtomicBoolean waitingForAuth,
+                       Queue<QueuedMessage> queue) {
         this.credentials = credentials;
         this.messageCreator = messageCreator;
-        this.queue = new ArrayDeque<>();
-        this.waitingForAuth = new AtomicBoolean(false);
+        this.queue = queue;
+        this.waitingForAuth = waitingForAuth;
+        this.lock = lock;
     }
-
-    private record QueuedMessage(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) {
-
-        public void sendMessage() {
-                ctx.channel().writeAndFlush(msg, promise);
-            }
-        }
 
     @Override
     public void write(ChannelHandlerContext ctx, Object msg, ChannelPromise promise) throws Exception {
-        if (waitingForAuth.get()) {
-            queue.add(new QueuedMessage(ctx, msg, promise));
-            logger.info("Message added to queue while waiting for auth");
-            return;
+        lock.lock();
+        try {
+            if (waitingForAuth.get()) {
+                queue.add(new QueuedMessage(ctx, msg, promise));
+                logger.info("Message added to queue while waiting for auth");
+                return;
+            }
+
+            while (!queue.isEmpty()) {
+                QueuedMessage queuedMessage = queue.poll();
+                queuedMessage.sendMessage();
+            }
+
+            if (!credentials.containsToken()) {
+                waitingForAuth.set(true);
+                String login = credentials.getLogin();
+                String password = credentials.getPassword();
+                String message = messageCreator.createRequest(Operation.AUTHENTICATE,
+                        Map.of("login", login, "password", password));
+                ctx.writeAndFlush(message).addListener(future -> {
+                    if (!future.isSuccess()) {
+                        logger.error("Failed to write message", future.cause());
+                        waitingForAuth.set(false);
+                        throw new MessageWriteException("Netty failed to write message due to " + future.cause().getMessage());
+                    } else {
+                        logger.info("Auth message sent");
+                    }
+                });
+                queue.add(new QueuedMessage(ctx, msg, promise));
+                return;
+            }
+            msg = msg + "token:" + credentials.getToken() + ";";
+            super.write(ctx, msg, promise);
+        } finally {
+            lock.unlock();
         }
 
-        if (!credentials.containsToken()) {
-            waitingForAuth.set(true);
-            String login = credentials.getLogin();
-            String password = credentials.getPassword();
-            String message = messageCreator.createRequest(Operation.AUTHENTICATE,
-                    Map.of("login", login, "password", password));
-            ctx.writeAndFlush(message).addListener(future -> {
-                if (!future.isSuccess()) {
-                    logger.error("Failed to write message", future.cause());
-                    waitingForAuth.set(false);
-                    throw new MessageWriteException("Netty failed to write message due to " + future.cause().getMessage());
-                }
-            });
-            queue.add(new QueuedMessage(ctx, msg, promise));
-            return;
-        }
-        msg = msg + "token:" + credentials.getToken() + ";";
-        super.write(ctx, msg, promise);
     }
 
     @Override

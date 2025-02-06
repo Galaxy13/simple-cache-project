@@ -13,23 +13,23 @@ public class ClientTest {
         var storage = new AsyncStorageClient(8081, "localhost", "test", "test");
 
         storage.put("subTest", "1234")
-                .onResponse((resp) -> {
+                .onResponse(resp -> {
                     if (resp.getCode() == MessageCode.OK) {
-                        logger.info("Response received");
+                        logger.info("Response received: {}", resp);
                     }
                 }).execute();
 
         storage.put("test", "45")
-                .onResponse((resp) -> {
+                .onResponse(resp -> {
                     if (resp.getCode() == MessageCode.OK) {
-                        logger.info("OK");
+                        logger.info("Put response received: {}", resp);
                     }
                 }).execute();
 
-        var putFuture = storage.get("subTest")
+        var putFuture = storage.subscribeOn("subTest")
                 .onResponse((response -> {
-                    if (response.getCode().equals(MessageCode.OK)){
-                        logger.info(response.getParameter("value"));
+                    if (response.getCode().equals(MessageCode.SUBSCRIPTION_SUCCESS) || response.getCode().equals(MessageCode.SUBSCRIPTION_RESPONSE)){
+                        logger.info("Subscription response received: {}", response);
                     }
                 }))
                 .onError((error -> logger.error(error.getMessage())));
