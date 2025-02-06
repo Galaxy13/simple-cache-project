@@ -9,7 +9,6 @@ plugins {
 dependencies {
     implementation ("ch.qos.logback:logback-classic")
     implementation ("io.netty:netty-all")
-    implementation("commons-cli:commons-cli")
 
     testImplementation ("org.junit.jupiter:junit-jupiter-api")
     testImplementation ("org.junit.jupiter:junit-jupiter-engine")
