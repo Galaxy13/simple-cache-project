@@ -1,27 +1,29 @@
 package com.galaxy13.storage;
 
 import java.util.Map;
+import java.util.Optional;
 
-public abstract class AbstractStorage<K> implements Storage<K> {
-    private Map<K, Value> storage;
+public abstract class AbstractStorage<K, V> implements Storage<K, V> {
+    protected Map<K, V> storage;
 
     @Override
-    public Value get(K key) {
-        return storage.get(key);
+    public Optional<V> get(K key) {
+        return Optional.ofNullable(storage.get(key));
     }
 
     @Override
-    public Value put(K key, Value value) {
-        return storage.put(key, value);
+    public V put(K key, V value) {
+        storage.put(key, value);
+        return value;
     }
 
     @Override
-    public Value remove(K key) {
-        return storage.remove(key);
+    public Optional<V> remove(K key) {
+        return Optional.ofNullable(storage.remove(key));
     }
 
     @Override
-    public Value putIfAbsent(K key, Value value) {
-        return storage.putIfAbsent(key, value);
+    public int size() {
+        return storage.size();
     }
 }

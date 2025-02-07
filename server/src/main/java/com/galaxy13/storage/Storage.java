@@ -1,11 +1,14 @@
 package com.galaxy13.storage;
 
-public interface Storage<K> {
-    Value get(K key);
+import java.util.Optional;
 
-    Value putIfAbsent(K key, Value value);
+@SuppressWarnings("unused")
+public interface Storage<K, V> {
+    Optional<V> get(K key);
 
-    Value remove(K key);
+    Optional<V> remove(K key);
 
-    Value put(K key, Value value);
+    V put(K key, V value);
+
+    int size();
 }
