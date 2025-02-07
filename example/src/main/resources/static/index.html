@@ -1,0 +1,62 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cache System Demo</title>
+</head>
+<body>
+<h1>WebSocket Demo</h1>
+<p>First Value: <span id="firstValue">Loading...</span></p>
+<p>Second Value: <span id="secondValue">Loading...</span></p>
+
+<div>
+    <input type="text" id="newFirstValue" placeholder="Set New First Value" />
+    <button id="setFirstValue">Set First Value</button>
+</div>
+<div>
+    <input type="text" id="newSecondValue" placeholder="Set New Second Value" />
+    <button id="setSecondValue">Set Second Value</button>
+</div>
+
+<button id="updateButton">Update First Value</button>
+
+<script>
+    async function updateFirstValue() {
+        const response = await fetch('/data');
+        document.getElementById('firstValue').innerText = await response.text();
+    }
+
+    async function setFirstValue() {
+        const newValue = document.getElementById('newFirstValue').value;
+        await fetch('/firstValue', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ value: newValue }),
+        });
+        await updateFirstValue();
+    }
+
+    async function setSecondValue() {
+        const newValue = document.getElementById('newSecondValue').value;
+        ws.send(JSON.stringify({ value: newValue }));
+    }
+
+    const ws = new WebSocket('ws://localhost:8080/ws');
+
+    ws.onopen = function() {
+        console.log('WebSocket connection established.');
+    };
+
+    ws.onmessage = function(event) {
+        document.getElementById('secondValue').innerText = event.data;
+    };
+
+    document.getElementById('setFirstValue').addEventListener('click', setFirstValue);
+    document.getElementById('setSecondValue').addEventListener('click', setSecondValue);
+    document.getElementById('updateButton').addEventListener('click', updateFirstValue);
+
+    updateFirstValue();
+</script>
+</body>
+</html>

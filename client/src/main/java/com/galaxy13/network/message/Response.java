@@ -36,7 +36,7 @@ public class Response {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("code:").append(messageCode);
+        builder.append("code:").append(messageCode).append(";");
         for (Map.Entry<String, String> entry : parameters.entrySet()) {
             builder.append(entry.getKey()).append(":").append(entry.getValue()).append(";");
         }

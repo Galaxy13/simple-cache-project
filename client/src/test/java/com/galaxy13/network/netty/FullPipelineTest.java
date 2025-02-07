@@ -9,6 +9,7 @@ import com.galaxy13.network.message.creator.MessageCreator;
 import com.galaxy13.network.message.creator.MessageCreatorImpl;
 import com.galaxy13.network.netty.auth.AuthHandler;
 import com.galaxy13.network.netty.auth.Credentials;
+import com.galaxy13.network.netty.auth.QueuedMessage;
 import com.galaxy13.network.netty.decoder.ResponseDecoder;
 import com.galaxy13.network.netty.handler.ResponseHandler;
 import io.netty.buffer.ByteBuf;
@@ -17,7 +18,7 @@ import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
@@ -25,9 +26,13 @@ import org.mockito.stubbing.Answer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Queue;
+import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Future;
 import java.util.concurrent.Phaser;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.locks.ReentrantLock;
 
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -40,12 +45,14 @@ class FullPipelineTest {
     private ErrorAction errorAction;
     private final List<Future<?>> futures = new ArrayList<>();
     private final Phaser phaser = new Phaser(1);
+    private Queue<QueuedMessage> queue;
 
     @BeforeEach
     void setUp() {
         credentials = Mockito.mock(Credentials.class);
         action = Mockito.mock(ResponseAction.class);
         errorAction = Mockito.mock(ErrorAction.class);
+        queue = new ConcurrentLinkedQueue<>();
         ExecutorService executor = Mockito.mock(ExecutorService.class);
 
         mockAsSynchronizedExecutor(executor);
@@ -55,7 +62,7 @@ class FullPipelineTest {
 
         messageCreator = new MessageCreatorImpl(parameterDelimiter, equalDelimiter);
         var decoder = new ResponseDecoder(parameterDelimiter, equalDelimiter);
-        var authHandler = new AuthHandler(credentials, messageCreator);
+        var authHandler = new AuthHandler(credentials, messageCreator, new ReentrantLock(), new AtomicBoolean(false), queue);
         var clientHandler = new ResponseHandler(action, errorAction, phaser, futures, executor);
 
         channel = new EmbeddedChannel();
@@ -65,7 +72,7 @@ class FullPipelineTest {
         channel.pipeline().addLast(clientHandler);
     }
 
-    @Test
+    @RepeatedTest(5)
     void wrongCredentialsTest(){
         // setting "wrong" credentials
         String login = "wrongLogin";
@@ -97,7 +104,7 @@ class FullPipelineTest {
         verify(errorAction, times(1)).execute(ArgumentMatchers.any());
     }
 
-    @Test
+    @RepeatedTest(5)
     void tokenAcquireTest(){
         // mocking credentials
         String login = "testLogin";
@@ -132,7 +139,7 @@ class FullPipelineTest {
         verify(credentials).setToken(token);
     }
 
-    @Test
+    @RepeatedTest(5)
     void performPutOperationTest(){
         // simulating token check
         String token = "token12345";
@@ -169,7 +176,7 @@ class FullPipelineTest {
         verify(errorAction, times(0)).execute(ArgumentMatchers.any());
     }
 
-    @Test
+    @RepeatedTest(5)
     void getOperationTest(){
         // simulating token check
         String token = "token12345";
@@ -204,7 +211,7 @@ class FullPipelineTest {
         verify(errorAction, times(0)).execute(ArgumentMatchers.any());
     }
 
-    @Test
+    @RepeatedTest(5)
     void subscribingTest(){
         // simulating token check
         String token = "token12345";
