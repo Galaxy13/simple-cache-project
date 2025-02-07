@@ -38,7 +38,7 @@ public class BlockingStorageClient {
         this.credentials = new Credentials(username, password);
     }
 
-    public String put(String key, String value) {
+    public Response put(String key, String value) {
         checkToken();
         String msg = messageCreator.createRequest(Operation.PUT,
                 Map.of(KEY_FIELD_NAME, key, VALUE_FIELD_NAME, value, TOKEN_FIELD_NAME, credentials.getToken()));
@@ -50,7 +50,7 @@ public class BlockingStorageClient {
         }
     }
 
-    public String get(String key) {
+    public Response get(String key) {
         checkToken();
         String msg = messageCreator.createRequest(Operation.GET,
                 Map.of(KEY_FIELD_NAME, key, TOKEN_FIELD_NAME, credentials.getToken()));
@@ -62,17 +62,17 @@ public class BlockingStorageClient {
         }
     }
 
-    private String handleResponse(String msg) {
+    private Response handleResponse(String msg) {
         try {
             Response response = blockingClient.sendMessage(msg);
             if (response.getCode().equals(MessageCode.OK)){
-                return response.getParameter(VALUE_FIELD_NAME);
+                return response;
             } else if (response.getCode().equals(MessageCode.INVALID_TOKEN)) {
                 if (!authenticate()){
                     throw new CredentialException(credentials);
                 } else {
                     logger.warn("Request ignored");
-                    return "0";
+                    return response;
                 }
             }
         } catch (InterruptedException e) {

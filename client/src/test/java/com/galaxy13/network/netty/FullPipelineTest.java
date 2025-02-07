@@ -18,7 +18,7 @@ import io.netty.channel.embedded.EmbeddedChannel;
 import io.netty.handler.codec.string.StringEncoder;
 import io.netty.util.CharsetUtil;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.RepeatedTest;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mockito;
 import org.mockito.stubbing.Answer;
@@ -72,7 +72,7 @@ class FullPipelineTest {
         channel.pipeline().addLast(clientHandler);
     }
 
-    @Test
+    @RepeatedTest(5)
     void wrongCredentialsTest(){
         // setting "wrong" credentials
         String login = "wrongLogin";
@@ -104,7 +104,7 @@ class FullPipelineTest {
         verify(errorAction, times(1)).execute(ArgumentMatchers.any());
     }
 
-    @Test
+    @RepeatedTest(5)
     void tokenAcquireTest(){
         // mocking credentials
         String login = "testLogin";
@@ -139,7 +139,7 @@ class FullPipelineTest {
         verify(credentials).setToken(token);
     }
 
-    @Test
+    @RepeatedTest(5)
     void performPutOperationTest(){
         // simulating token check
         String token = "token12345";
@@ -176,7 +176,7 @@ class FullPipelineTest {
         verify(errorAction, times(0)).execute(ArgumentMatchers.any());
     }
 
-    @Test
+    @RepeatedTest(5)
     void getOperationTest(){
         // simulating token check
         String token = "token12345";
@@ -211,7 +211,7 @@ class FullPipelineTest {
         verify(errorAction, times(0)).execute(ArgumentMatchers.any());
     }
 
-    @Test
+    @RepeatedTest(5)
     void subscribingTest(){
         // simulating token check
         String token = "token12345";

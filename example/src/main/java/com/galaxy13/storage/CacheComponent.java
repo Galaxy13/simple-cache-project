@@ -4,6 +4,7 @@ import com.galaxy13.client.async.AsyncStorageClient;
 import com.galaxy13.client.async.action.ErrorAction;
 import com.galaxy13.client.async.action.ResponseAction;
 import com.galaxy13.client.blocking.BlockingStorageClient;
+import com.galaxy13.network.message.Response;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -20,11 +21,11 @@ public class CacheComponent {
         this.blockingClient = new BlockingStorageClient(port, host, username, password);
     }
 
-    public String get(String key) {
+    public Response get(String key) {
         return blockingClient.get(key);
     }
 
-    public String put(String key, String value) {
+    public Response put(String key, String value) {
         return blockingClient.put(key, value);
     }
 

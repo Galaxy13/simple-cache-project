@@ -1,6 +1,7 @@
 package com.galaxy13.controller;
 
 import com.galaxy13.mapping.FirstValue;
+import com.galaxy13.network.message.code.MessageCode;
 import com.galaxy13.storage.CacheComponent;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -16,12 +17,12 @@ public class ExampleController {
     }
 
     @GetMapping("/data")
-    public int getValue() {
-        String value = cacheComponent.get("test");
-        if (value != null) {
-            return Integer.parseInt(value);
+    public String getValue() {
+        var response = cacheComponent.get("test");
+        if (response.getCode().equals(MessageCode.OK)){
+            return response.getParameter("value");
         }
-        return 0;
+        return response.getCode().toString();
     }
 
     @PostMapping("/firstValue")

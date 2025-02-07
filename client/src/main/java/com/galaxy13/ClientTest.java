@@ -1,10 +1,12 @@
 package com.galaxy13;
 
 import com.galaxy13.client.async.AsyncStorageClient;
-import com.galaxy13.network.message.code.MessageCode;
 
+import com.galaxy13.network.message.code.MessageCode;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class ClientTest {
     private static final Logger logger = LoggerFactory.getLogger(ClientTest.class);
@@ -12,27 +14,31 @@ public class ClientTest {
     public static void main(String[] args) {
         var storage = new AsyncStorageClient(8081, "localhost", "test", "test");
 
-        storage.put("subTest", "1234")
-                .onResponse(resp -> {
-                    if (resp.getCode() == MessageCode.OK) {
-                        logger.info("Response received: {}", resp);
-                    }
-                }).execute();
+        AtomicInteger success = new AtomicInteger();
+        AtomicInteger failed = new AtomicInteger();
 
-        storage.put("test", "45")
-                .onResponse(resp -> {
-                    if (resp.getCode() == MessageCode.OK) {
-                        logger.info("Put response received: {}", resp);
-                    }
-                }).execute();
+        long startTime = System.currentTimeMillis();
 
-        var putFuture = storage.subscribeOn("subTest")
-                .onResponse((response -> {
-                    if (response.getCode().equals(MessageCode.SUBSCRIPTION_SUCCESS) || response.getCode().equals(MessageCode.SUBSCRIPTION_RESPONSE)){
-                        logger.info("Subscription response received: {}", response);
-                    }
-                }))
-                .onError((error -> logger.error(error.getMessage())));
-        putFuture.execute();
+        for (int i = 0; i < 100_000; i++) {
+            if (i % 10_000 == 0 && i != 0){
+                logger.info("Completed operations: {}", i);
+            }
+            storage.put("key" + i, "value" + i)
+                    .onResponse(response -> {
+                        if (response.getCode() == MessageCode.OK) {
+                            success.getAndIncrement();
+                        } else {
+                            failed.getAndIncrement();
+                        }
+                    })
+                    .onError(error -> {
+                        logger.error(error.getMessage());
+                        failed.getAndIncrement();
+                    }).execute();
+        }
+        storage.shutdown();
+
+        long time = System.currentTimeMillis() - startTime;
+        logger.info("Success: {}, Failed: {}, Time: {}", success, failed, time);
     }
 }
